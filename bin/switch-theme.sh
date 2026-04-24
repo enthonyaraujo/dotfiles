@@ -1,30 +1,52 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-THEMES="$HOME/.config/themes"
+# 1. Defina as pastas e arquivos
+WALLPAPER_DIR="$HOME/.config/wallpapers"
+CONFIG_FILE="$HOME/.config/hypr/wallpaper.conf"
 
-choice=$(find "$THEMES" -maxdepth 1 -mindepth 1 -type d | sort | while read -r dir; do
-  name=$(basename "$dir")
-  icon="$dir/preview.png"
-  echo -e "$name\x00icon\x1f$icon"
+# 2. Lista as imagens e usa a própria imagem como ícone
+choice=$(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.jpeg" \) | sort | while read -r img; do
+  name=$(basename "$img")
+  echo -en "$name\x00icon\x1f$img\n"
 done | rofi \
   -dmenu \
   -show-icons \
   -theme ~/.config/bin/theme-picker.rasi \
-  -p "Temas")
+  -theme-str '
+    window { 
+        width: 80%; 
+    }
+    listview {
+        columns: 4;
+        lines: 1;
+        fixed-height: true;
+        dynamic: true;
+        scrollbar: false;
+        spacing: 25px;
+        padding: 20px;
+    }
+    element {
+        orientation: vertical;
+        padding: 15px;
+    }
+    element-icon {
+        size: 180px;
+    }
+    element-text {
+        horizontal-align: 0.5;
+    }
+  ' \
+  -p "Wallpaper")
 
 [[ -z "$choice" ]] && exit 0
 
-INSTALL_SCRIPT="$THEMES/$choice/install.sh"
+SELECTED_WALLPAPER="$WALLPAPER_DIR/$choice"
 
-if [[ -f "$INSTALL_SCRIPT" ]]; then
+# 3. Salva a escolha no arquivo de configuração do Hyprland
+sed -i "s|^\(\$wallpaper_hyprland = \).*|\1$SELECTED_WALLPAPER|" "$CONFIG_FILE"
 
-    cd "$THEMES/$choice"
-    
-    # Executa o script
-    bash "install.sh"
-    
-    notify-send "Tema Aplicado" "O tema $choice foi instalado com sucesso!"
-else
-    notify-send "Erro" "Script de instalação não encontrado em: $INSTALL_SCRIPT"
-fi
+# 4. Força o encerramento do hyprpaper e inicia novamente
+killall hyprpaper || true  # "|| true" evita que o script quebre se o hyprpaper já estiver fechado
+sleep 0.5                  # Tempo para o sistema limpar o processo
+hyprpaper > /dev/null 2>&1 & # Inicia o hyprpaper em segundo plano de forma silenciosa

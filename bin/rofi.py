@@ -83,7 +83,7 @@ def menu_main():
         "󰣇   Archlinux Wiki",
         "   Hyprland Wiki",
         "󰀻   Applications",
-        "   Switch theme",
+        "   Switch Wallpaper",
         "   Settings",
         "   System Monitor",
         "   System",
