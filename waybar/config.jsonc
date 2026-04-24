@@ -16,6 +16,7 @@
     "modules-right":  [ 
                         "memory",
                         "cpu",
+                        "custom/gpu",
                         "tray",  
                         "hyprland/language",
                         "wireplumber",
@@ -95,7 +96,7 @@
     },
 
     "cpu": {
-        "format": "CPU: {usage}% |"  //\uf4bc
+        "format": "CPU: {usage}%"  //\uf4bc
     },
 
     "network": {
@@ -138,7 +139,14 @@
       "on-click": " $HOME/.config/bin/rofi.py",
       "tooltip": false
     },
-
+    "custom/gpu": {
+      "exec": "~/.config/bin/gpu-usage.sh",
+      "return-type": "json",
+      "format": "GPU: {} | ", // Ícone de GPU (necessita de uma fonte Nerd Font)
+      "interval": 2, // Atualiza a cada 2 segundos
+      "tooltip": true
+    },
+ 
     ////////////////////////////////
     ///////////TRAY EXPAND /////////
     /////////////////////////////////
