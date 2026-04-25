@@ -1,0 +1,228 @@
+﻿## Source from conf.d before our fish config
+source .config/fish/conf.d/done.fish
+
+## Set values
+## Run fastfetch as welcome message
+function fish_greeting
+
+end
+
+# Format man pages
+set -x MANROFFOPT -c
+set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
+
+# Set settings for https://github.com/franciscolourenco/done
+set -U __done_min_cmd_duration 10000
+set -U __done_notification_urgency_level low
+
+## Environment setup
+# Apply .profile: use this to put fish compatible .profile stuff in
+if test -f ~/.fish_profile
+    source ~/.fish_profile
+end
+
+# Add ~/.local/bin to PATH
+if test -d ~/.local/bin
+    if not contains -- ~/.local/bin $PATH
+        set -p PATH ~/.local/bin
+    end
+end
+
+# Add depot_tools to PATH
+if test -d ~/Applications/depot_tools
+    if not contains -- ~/Applications/depot_tools $PATH
+        set -p PATH ~/Applications/depot_tools
+    end
+end
+
+## Functions
+# Functions needed for !! and !$ https://github.com/oh-my-fish/plugin-bang-bang
+function __history_previous_command
+    switch (commandline -t)
+        case "!"
+            commandline -t $history[1]
+            commandline -f repaint
+        case "*"
+            commandline -i !
+    end
+end
+
+function __history_previous_command_arguments
+    switch (commandline -t)
+        case "!"
+            commandline -t ""
+            commandline -f history-token-search-backward
+        case "*"
+            commandline -i '$'
+    end
+end
+
+if [ "$fish_key_bindings" = fish_vi_key_bindings ]
+
+    bind -Minsert ! __history_previous_command
+    bind -Minsert '$' __history_previous_command_arguments
+else
+    bind ! __history_previous_command
+    bind '$' __history_previous_command_arguments
+end
+
+# Fish command history
+function history
+    builtin history --show-time='%F %T '
+end
+
+function backup --argument filename
+    cp $filename $filename.bak
+end
+
+# Copy DIR1 DIR2
+function copy
+    set count (count $argv | tr -d \n)
+    if test "$count" = 2; and test -d "$argv[1]"
+        set from (echo $argv[1] | trim-right /)
+        set to (echo $argv[2])
+        command cp -r $from $to
+    else
+        command cp $argv
+    end
+end
+
+## Useful aliases
+# Replace ls with eza
+alias ls='eza -al --color=always --group-directories-first --icons' # preferred listing
+alias la='eza -a --color=always --group-directories-first --icons' # all files and dirs
+alias ll='eza -l --color=always --group-directories-first --icons' # long format
+alias lt='eza -aT --color=always --group-directories-first --icons' # tree listing
+alias l.="eza -a | grep -e '^\.'" # show only dotfiles
+
+# Common use
+alias grubup="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias fixpacman="sudo rm /var/lib/pacman/db.lck"
+alias tarnow='tar -acf '
+alias untar='tar -zxvf '
+alias wget='wget -c '
+alias psmem='ps auxf | sort -nr -k 4'
+alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias hw='hwinfo --short' # Hardware Info
+alias big="expac -H M '%m\t%n' | sort -h | nl" # Sort installed packages according to size in MB
+alias gitpkg='pacman -Q | grep -i "\-git" | wc -l' # List amount of -git packages
+alias update='sudo pacman -Syu'
+
+# Get fastest mirrors
+alias mirror="sudo cachyos-rate-mirrors"
+
+# Help people new to Arch
+alias apt='man pacman'
+alias apt-get='man pacman'
+alias please='sudo'
+alias tb='nc termbin.com 9999'
+
+# Cleanup orphaned packages
+alias cleanup='sudo pacman -Rns (pacman -Qtdq)'
+
+# Get the error messages from journalctl
+alias jctl="journalctl -p 3 -xb"
+
+# Recent installed packages
+alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
+
+function fish_prompt
+    set -l __last_command_exit_status $status
+
+    if not set -q -g __fish_arrow_functions_defined
+        set -g __fish_arrow_functions_defined
+        function _git_branch_name
+            set -l branch (git symbolic-ref --quiet HEAD 2>/dev/null)
+            if set -q branch[1]
+                echo (string replace -r '^refs/heads/' '' $branch)
+            else
+                echo (git rev-parse --short HEAD 2>/dev/null)
+            end
+        end
+
+        function _is_git_dirty
+            not command git diff-index --cached --quiet HEAD -- &>/dev/null
+            or not command git diff --no-ext-diff --quiet --exit-code &>/dev/null
+        end
+
+        function _is_git_repo
+            type -q git
+            or return 1
+            git rev-parse --git-dir >/dev/null 2>&1
+        end
+
+        function _hg_branch_name
+            echo (hg branch 2>/dev/null)
+        end
+
+        function _is_hg_dirty
+            set -l stat (hg status -mard 2>/dev/null)
+            test -n "$stat"
+        end
+
+        function _is_hg_repo
+            fish_print_hg_root >/dev/null
+        end
+
+        function _repo_branch_name
+            _$argv[1]_branch_name
+        end
+
+        function _is_repo_dirty
+            _is_$argv[1]_dirty
+        end
+
+        function _repo_type
+            if _is_hg_repo
+                echo hg
+                return 0
+            else if _is_git_repo
+                echo git
+                return 0
+            end
+            return 1
+        end
+    end
+
+    set -l cyan (set_color -o cyan)
+    set -l yellow (set_color -o yellow)
+    set -l red (set_color -o red)
+    set -l green (set_color -o green)
+    set -l blue (set_color -o blue)
+    set -l normal (set_color --reset)
+
+    set -l arrow_color "$green"
+    if test $__last_command_exit_status != 0
+        set arrow_color "$red"
+    end
+
+    set -l arrow "$arrow_color➜ "
+    if fish_is_root_user
+        set arrow "$arrow_color# "
+    end
+
+    set -l cwd $cyan(prompt_pwd | path basename)
+
+    set -l repo_info
+    if set -l repo_type (_repo_type)
+        set -l repo_branch $red(_repo_branch_name $repo_type)
+        set repo_info "$blue $repo_type:($repo_branch$blue)"
+
+        if _is_repo_dirty $repo_type
+            set -l dirty "$yellow ✗"
+            set repo_info "$repo_info$dirty"
+        end
+    end
+
+    echo -n -s $arrow ' '$cwd $repo_info $normal ' '
+end

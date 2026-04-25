@@ -1,0 +1,69 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "SOURCE" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+source \- evaluate contents of file
+.SH SYNOPSIS
+.nf
+\fBsource\fP \fIFILE\fP [\fIARGUMENTS\fP \&...]
+\fISOMECOMMAND\fP | \fBsource\fP
+\fB\&. \fP\fIFILE\fP [\fIARGUMENTS\fP \&...]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBsource\fP evaluates the commands of the specified \fIFILE\fP in the current shell as a new block of code. This is different from starting a new process to perform the commands (i.e. \fBfish < FILE\fP) since the commands will be evaluated by the current shell, which means that changes in shell variables will affect the current shell. If additional arguments are specified after the file name, they will be inserted into the \fBargv\fP \%<#\:envvar-argv> variable. The \fBargv\fP \%<#\:envvar-argv> variable will not include the name of the sourced file.
+.sp
+fish will search the working directory to resolve relative paths but will not search \fBPATH\fP \%<#\:envvar-PATH> .
+.sp
+If no file is specified and a file or pipeline is connected to standard input, or if the file name \fB\-\fP is used, \fBsource\fP will read from standard input. If no file is specified and there is no redirected file or pipeline on standard input, an error will be printed.
+.sp
+The exit status of \fBsource\fP is the exit status of the last job to execute. If something goes wrong while opening or reading the file, \fBsource\fP exits with a non\-zero status.
+.sp
+Some other shells only support the \fB\&.\fP alias (a single period).
+The use of \fB\&.\fP is deprecated in favour of \fBsource\fP, and \fB\&.\fP will be removed in a future version of fish.
+.sp
+\fBsource\fP creates a new local scope \%<#\:variables-scope>; \fBset \-\-local\fP within a sourced block will not affect variables in the enclosing scope.
+.sp
+The \fB\-h\fP or \fB\-\-help\fP option displays help about using this command.
+.SH EXAMPLE
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+source ~/.config/fish/config.fish
+# Causes fish to re\-read its initialization file.
+.EE
+.UNINDENT
+.UNINDENT
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

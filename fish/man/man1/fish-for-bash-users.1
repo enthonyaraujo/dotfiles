@@ -1,0 +1,682 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "FISH-FOR-BASH-USERS" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.sp
+This is to give you a quick overview if you come from bash (or to a lesser extent other shells like zsh or ksh) and want to know how fish differs. Fish is intentionally not POSIX\-compatible and as such some of the things you are used to work differently.
+.sp
+Many things are similar \- they both fundamentally expand commandlines to execute commands, have pipes, redirections, variables, globs, use command output in various ways. This document is there to quickly show you the differences.
+.SH COMMAND SUBSTITUTIONS
+.sp
+Fish spells command substitutions as \fB$(command)\fP or \fB(command)\fP, but not \fB\(gacommand\(ga\fP\&.
+.sp
+In addition, it only splits them on newlines instead of $IFS. If you want to split on something else, use string split \%<>, string split0 \%<> or string collect \%<>\&. If those are used as the last command in a command substitution the splits they create are carried over. So:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+for i in (find . \-print0 | string split0)
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+will correctly handle all possible filenames.
+.SH VARIABLES
+.sp
+Fish sets and erases variables with set \%<> instead of \fBVAR=VAL\fP and a variety of separate builtins like \fBdeclare\fP and \fBunset\fP and \fBexport\fP\&. \fBset\fP takes options to determine the scope and exportedness of a variable:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+# Define $PAGER *g*lobal and e*x*ported,
+# so this is like \(ga\(gaexport PAGER=less\(ga\(ga
+set \-gx PAGER less
+
+# Define $alocalvariable only locally,
+# like \(ga\(galocal alocalvariable=foo\(ga\(ga
+set \-l alocalvariable foo
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+or to erase variables:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+set \-e PAGER
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+\fBVAR=VAL\fP statements are available as environment overrides:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+PAGER=cat git log
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Fish does not perform word splitting. Once a variable has been set to a value, that value stays as it is, so double\-quoting variable expansions isn\(aqt the necessity it is in bash. [1]
+.sp
+For instance, here\(aqs bash
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> foo=\(dqbar baz\(dq
+> printf \(aq\(dq%s\(dq\en\(aq $foo
+# will print two lines, because we didn\(aqt double\-quote
+# this is word splitting
+\(dqbar\(dq
+\(dqbaz\(dq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+And here is fish:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> set foo \(dqbar baz\(dq
+> printf \(aq\(dq%s\(dq\en\(aq $foo
+# foo was set as one element,
+# so it will be passed as one element, so this is one line
+\(dqbar baz\(dq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+All variables are \(dqarrays\(dq (we use the term \(dqlists\(dq), and expanding a variable expands to all its elements, with each element as its own argument (like bash\(aqs \fB\(dq${var[@]}\(dq\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> set var \(dqfoo bar\(dq banana
+> printf %s\en $var
+foo bar
+banana
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Specific elements of a list can be selected:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+echo $list[5..7]
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+The arguments to \fBset\fP are ordinary, so you can also set a variable to the output of a command:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+# Set lines to all the lines in file, one element per line
+set lines (cat file)
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+or a mixture of literal values and output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> set numbers 1 2 3 (seq 5 8) 9
+> printf \(aq%s\en\(aq $numbers
+1
+2
+3
+5
+6
+7
+8
+9
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+A \fB=\fP is unnecessary and unhelpful with \fBset\fP \- \fBset foo = bar\fP will set the variable \(dqfoo\(dq to two values: \(dq=\(dq and \(dqbar\(dq. \fBset foo=bar\fP will print an error.
+.sp
+See Shell variables \%<#\:variables> for more.
+.IP [1] 5
+zsh also does not perform word splitting by default (the SH_WORD_SPLIT option controls this)
+.SH WILDCARDS (GLOBS)
+.sp
+Fish only supports the \fB*\fP and \fB**\fP glob (and the deprecated \fB?\fP glob) as syntax. If a glob doesn\(aqt match it fails the command (like with bash\(aqs \fBfailglob\fP) unless the command is \fBfor\fP, \fBset\fP or \fBcount\fP or the glob is used with an environment override (\fBVAR=* command\fP), in which case it expands to nothing (like with bash\(aqs \fBnullglob\fP option).
+.sp
+Globbing doesn\(aqt happen on expanded variables, so:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+set foo \(dq*\(dq
+echo $foo
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+will not match any files.
+.sp
+There are no options to control globbing so it always behaves like that.
+.sp
+The \fB**\fP glob will match in subdirectories as well. In other shells this often needs to be turned on with an option, like \fBsetopt globstar\fP in bash.
+.sp
+Unlike bash, fish will also follow symlinks, and will sort the results in a natural sort, with included numbers compared as numbers. That means it will sort e.g. music tracks correctly even if they have numbers like \fB1\fP instead of \fB01\fP\&.
+.sp
+See Wildcards \%<#\:expand-wildcard> for more.
+.SH QUOTING
+.sp
+Fish has two quoting styles: \fB\(dq\(dq\fP and \fB\(aq\(aq\fP\&. Variables are expanded in double\-quotes, nothing is expanded in single\-quotes.
+.sp
+There is no \fB$\(aq\(aq\fP, instead the sequences that would transform are transformed \fIwhen unquoted\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> echo a\enb
+a
+b
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+See Quotes \%<#\:quotes> for more.
+.SH STRING MANIPULATION
+.sp
+Fish does not have \fB${foo%bar}\fP, \fB${foo#bar}\fP and \fB${foo/bar/baz}\fP\&. Instead string manipulation is done by the string \%<> builtin.
+.sp
+For example, to replace \(dqbar\(dq with \(dqbaz\(dq:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> string replace bar baz \(dqbar luhrmann\(dq
+baz luhrmann
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+It can also split strings:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> string split \(dq,\(dq \(dqfoo,bar\(dq
+foo
+bar
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Match regular expressions as a replacement for \fBgrep\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> echo bababa | string match \-r \(aqaba$\(aq
+aba
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Pad strings to a given width, with arbitrary characters:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> string pad \-c x \-w 20 \(dqfoo\(dq
+xxxxxxxxxxxxxxxxxfoo
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Make strings lower/uppercase:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> string lower Foo
+foo
+
+> string upper Foo
+FOO
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+repeat strings, trim strings, escape strings or print a string\(aqs length or width (in terminal cells).
+.SH SPECIAL VARIABLES
+.sp
+Some bash variables and their closest fish equivalent:
+.INDENT 0.0
+.IP \(bu 2
+\fB$*\fP, \fB$@\fP, \fB$1\fP and so on: \fB$argv\fP
+.IP \(bu 2
+\fB$?\fP: \fB$status\fP
+.IP \(bu 2
+\fB$$\fP: \fB$fish_pid\fP
+.IP \(bu 2
+\fB$#\fP: No variable, instead use \fBcount $argv\fP
+.IP \(bu 2
+\fB$!\fP: \fB$last_pid\fP
+.IP \(bu 2
+\fB$0\fP: \fBstatus filename\fP
+.IP \(bu 2
+\fB$\-\fP: Mostly \fBstatus is\-interactive\fP and \fBstatus is\-login\fP
+.UNINDENT
+.SH PROCESS SUBSTITUTION
+.sp
+Instead of \fB<(command)\fP fish uses \fB(command | psub)\fP\&. There is no equivalent to \fB>(command)\fP\&.
+.sp
+Note that both of these are bashisms, and most things can easily be expressed without. E.g. instead of:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+source (command | psub)
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Use:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+command | source
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+as fish\(aqs source \%<> can read from stdin.
+.SH HEREDOCS
+.sp
+Fish does not have \fB<<EOF\fP \(dqheredocs\(dq. Instead of
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+cat <<EOF
+some string
+some more string
+EOF
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+use:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+printf %s\en \(dqsome string\(dq \(dqsome more string\(dq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+or:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+echo \(dqsome string
+some more string\(dq
+
+# or if you want the quotes on separate lines:
+
+echo \(dq\e
+some string
+some more string\e
+\(dq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Quotes are followed across newlines.
+.sp
+What \(dqheredocs\(dq do is:
+.INDENT 0.0
+.IP 1. 3
+Read/interpret the string, with special rules, up to the terminator. [2]
+.IP 2. 3
+Write the resulting string to a temporary file.
+.IP 3. 3
+Start the command the heredoc is attached to with that file as stdin.
+.UNINDENT
+.sp
+This means it is essentially the same as just reading from a pipe, so:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+echo \(dqfoo\(dq | cat
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+is mostly the same as
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+cat <<EOF
+foo
+EOF
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Like with heredocs, the command has to be prepared to read from stdin. Sometimes this requires special options to be used, often giving a filename of \fB\-\fP turns it on.
+.sp
+For example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+echo \(dqxterm
+rxvt\-unicode\(dq | pacman \-\-remove \-
+
+# is the same as (the \(ga\-\(ga makes pacman read arguments from stdin)
+pacman \-\-remove xterm rxvt\-unicode
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+and could be written in other shells as
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+# This \(dq\-\(dq is still necessary \- the heredoc is *also* passed over stdin!
+pacman \-\-remove \- << EOF
+xterm
+rxvt\-unicode
+EOF
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+So heredocs really are minor syntactical sugar that introduces a lot of special rules, which is why fish doesn\(aqt have them. Pipes are a core concept, and are simpler and compose nicer.
+.IP [2] 5
+For example, the \(dqEOF\(dq is just a convention, the terminator can be an arbitrary string, something like \(dqTHISISTHEEND\(dq also works. And using \fB<<\-\fP trims leading \fItab\fP characters (but not other whitespace), so you can indent the lines, but only with tabs. Substitutions (variables, commands) are done on the heredoc by default, but not if the terminator is quoted: \fBcat << \(dqEOF\(dq\fP\&.
+.SH TEST (TEST, [, [[)
+.sp
+Fish has a POSIX\-compatible \fBtest\fP or \fB[\fP builtin. There is no \fB[[\fP and \fBtest\fP does not accept \fB==\fP as a synonym for \fB=\fP\&. It can compare floating point numbers, however.
+.sp
+\fBset \-q\fP can be used to determine if a variable exists or has a certain number of elements (\fBset \-q foo[2]\fP).
+.SH ARITHMETIC EXPANSION
+.sp
+Fish does not have \fB$((i+1))\fP arithmetic expansion, computation is handled by math \%<>:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+math $i + 1
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Unlike bash\(aqs arithmetic, it can handle floating point numbers:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> math 5 / 2
+2.5
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+And also has some functions, like for trigonometry:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> math cos 2 x pi
+1
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+You can pass arguments to \fBmath\fP separately like above or in quotes. Because fish uses \fB()\fP parentheses for command substitutions, quoting is needed if you want to use them in your expression:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> math \(aq(5 + 2) * 4\(aq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Both \fB*\fP and \fBx\fP are valid ways to spell multiplication, but \fB*\fP needs to be quoted because it looks like a glob\&.
+.SH PROMPTS
+.sp
+Fish does not use the \fB$PS1\fP, \fB$PS2\fP and so on variables. Instead the prompt is the output of the fish_prompt \%<> function, plus the fish_mode_prompt \%<> function if vi mode \%<#\:vi-mode> is enabled. The output of the fish_right_prompt \%<> function is used for the right\-sided prompt.
+.sp
+As an example, here\(aqs a relatively simple bash prompt:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+# <$HOSTNAME> <$PWD in blue> <Prompt Sign in Yellow> <Rest in default light white>
+PS1=\(aq\eh\e[\ee[1;34m\e]\ew\e[\ee[m\e] \e[\ee[1;32m\e]\e$\e[\ee[m\e] \(aq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+and a rough fish equivalent:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+function fish_prompt
+    set \-l prompt_symbol \(aq$\(aq
+    fish_is_root_user; and set prompt_symbol \(aq#\(aq
+
+    echo \-s (prompt_hostname) \e
+    (set_color blue) (prompt_pwd) \e
+    (set_color yellow) $prompt_symbol (set_color \-\-reset)
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+This shows a few differences:
+.INDENT 0.0
+.IP \(bu 2
+Fish provides set_color \%<> to color text. It can use the 16 named colors and also RGB sequences (so you could also use \fBset_color 5555FF\fP)
+.IP \(bu 2
+Instead of introducing specific escapes like \fB\eh\fP for the hostname, the prompt is a function. To achieve the effect of \fB\eh\fP, fish provides helper functions like prompt_hostname \%<>, which prints a shortened version of the hostname.
+.IP \(bu 2
+Fish offers other helper functions for adding things to the prompt, like fish_vcs_prompt \%<> for adding a display for common version control systems (git, mercurial, svn), and prompt_pwd \%<> for showing a shortened \fB$PWD\fP (the user\(aqs home directory becomes \fB~\fP and any path component is shortened).
+.UNINDENT
+.sp
+The default prompt is reasonably full\-featured and its code can be read via \fBtype fish_prompt\fP\&.
+.sp
+Fish does not have \fB$PS2\fP for continuation lines, instead it leaves the lines indented to show that the commandline isn\(aqt complete yet.
+.SH BLOCKS AND LOOPS
+.sp
+Fish\(aqs blocking constructs look a little different. They all start with a word, end in \fBend\fP and don\(aqt have a second starting word:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+for i in 1 2 3; do
+   echo $i
+done
+
+# becomes
+
+for i in 1 2 3
+   echo $i
+end
+
+while true; do
+   echo Weeee
+done
+
+# becomes
+
+while true
+   echo Weeeeeee
+end
+
+{
+   echo Hello
+}
+
+# becomes
+
+begin
+   echo Hello
+end
+
+if true; then
+   echo Yes I am true
+else
+   echo \(dqHow is true not true?\(dq
+fi
+
+# becomes
+
+if true
+   echo Yes I am true
+else
+   echo \(dqHow is true not true?\(dq
+end
+
+foo() {
+   echo foo
+}
+
+# becomes
+
+function foo
+    echo foo
+end
+
+# (bash allows the word \(dqfunction\(dq,
+#  but this is an extension)
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Fish does not have an \fBuntil\fP\&. Use \fBwhile not\fP or \fBwhile !\fP\&.
+.SH SUBSHELLS
+.sp
+Bash has a feature called \(dqsubshells\(dq, where it will start another shell process for certain things. That shell will then be independent and e.g. any changes it makes to variables won\(aqt be visible in the main shell.
+.sp
+This includes things like:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+# A list of commands in \(ga()\(ga parentheses
+(foo; bar) | baz
+
+# Both sides of a pipe
+foo | while read \-r bar; do
+    # This will not be visible outside of the loop.
+    VAR=VAL
+    # This background process will not be, either
+    baz &
+done
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Fish does not currently have subshells. You will have to find a different solution. The isolation can usually be achieved by scoping variables (with \fBset \-l\fP), but if you really do need to run your code in a new shell environment you can use \fBfish \-c \(aqyour code here\(aq\fP to do so explicitly.
+.sp
+\fB()\fP subshells are often confused with \fB{}\fP grouping, which does \fInot\fP use a subshell. When you just need to group, you can use \fBbegin; end\fP in fish:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+(foo; bar) | baz
+# when it should really have been:
+{ foo; bar; } | baz
+# becomes
+begin; foo; bar; end | baz
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+The pipe will be run in the same process, so \fBwhile read\fP loops can set variables outside:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+foo | while read bar
+    set \-g VAR VAL
+    baz &
+end
+
+echo $VAR # will print VAL
+jobs # will show \(dqbaz\(dq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Subshells are also frequently confused with command substitutions, which bash writes as \fB\(gacommand\(ga\fP or \fB$(command)\fP and fish writes as \fB$(command)\fP or \fB(command)\fP\&. Bash also \fIuses\fP subshells to implement them.
+.SH BUILTINS AND OTHER COMMANDS
+.sp
+By now it has become apparent that fish puts much more of a focus on its builtins and external commands rather than its syntax. So here are some helpful builtins and their rough equivalent in bash:
+.INDENT 0.0
+.IP \(bu 2
+string \%<> \- this replaces most of the string transformation (\fB${i%foo}\fP et al) and can also be used instead of \fBgrep\fP and \fBsed\fP and such.
+.IP \(bu 2
+math \%<> \- this replaces \fB$((i + 1))\fP arithmetic and can also do floats and some simple functions (sine and friends).
+.IP \(bu 2
+argparse \%<> \- this can handle a script\(aqs option parsing, for which bash would probably use \fBgetopt\fP (zsh provides \fBzparseopts\fP).
+.IP \(bu 2
+count \%<> can be used to count things and therefore replaces \fB$#\fP and can be used instead of \fBwc\fP\&.
+.IP \(bu 2
+status \%<> provides information about the shell status, e.g. if it\(aqs interactive or what the current linenumber is. This replaces \fB$\-\fP and \fB$BASH_LINENO\fP and other variables.
+.IP \(bu 2
+\fBseq(1)\fP can be used as a replacement for \fB{1..10}\fP range expansion. If your OS doesn\(aqt ship a \fBseq\fP fish includes a replacement function.
+.UNINDENT
+.SH OTHER FACILITIES
+.sp
+Bash has \fBset \-x\fP or \fBset \-o xtrace\fP to print all commands that are being executed. In fish, this would be enabled by setting \fBfish_trace\fP \%<#\:envvar-fish_trace>\&.
+.sp
+Or, if your intention is to \fIprofile\fP how long each line of a script takes, you can use \fBfish \-\-profile\fP \- see the page for the fish command \%<>\&.
+.SH Author
+fish-shell developers
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

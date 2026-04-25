@@ -1,0 +1,72 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "STRING-REPEAT" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+string-repeat \- multiply a string
+.SH SYNOPSIS
+.nf
+\fBstring\fP \fBrepeat\fP [(\fB\-n\fP | \fB\-\-count\fP) \fICOUNT\fP] [(\fB\-m\fP | \fB\-\-max\fP) \fIMAX\fP] [\fB\-N\fP | \fB\-\-no\-newline\fP]
+              [\fB\-q\fP | \fB\-\-quiet\fP] [\fISTRING\fP \&...]
+\fBstring\fP \fBrepeat\fP [\fB\-N\fP | \fB\-\-no\-newline\fP] [\fB\-q\fP | \fB\-\-quiet\fP] \fICOUNT\fP [\fISTRING\fP \&...]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBstring repeat\fP repeats the \fISTRING\fP \fB\-n\fP or \fB\-\-count\fP times. The \fB\-m\fP or \fB\-\-max\fP option will limit the number of outputted characters (excluding the newline). This option can be used by itself or in conjunction with \fB\-\-count\fP\&. If both \fB\-\-count\fP and \fB\-\-max\fP are present, max char will be outputted unless the final repeated string size is less than max, in that case, the string will repeat until count has been reached. Both \fB\-\-count\fP and \fB\-\-max\fP will accept a number greater than or equal to zero, in the case of zero, nothing will be outputted. The first argument is interpreted as \fICOUNT\fP if \fB\-\-count\fP or \fB\-\-max\fP are not explicitly specified. If \fB\-N\fP or \fB\-\-no\-newline\fP is given, the output won\(aqt contain a newline character at the end. Exit status: 0 if yielded string is not empty, 1 otherwise.
+.SH EXAMPLES
+.SS Repeat Examples
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+>_ string repeat \-n 2 \(aqfoo \(aq
+foo foo
+
+>_ echo foo | string repeat \-n 2
+foofoo
+
+>_ string repeat \-n 2 \-m 5 \(aqfoo\(aq
+foofo
+
+>_ string repeat \-m 5 \(aqfoo\(aq
+foofo
+
+>_ string repeat 2 \(aqfoo\(aq
+foofoo
+
+>_ string repeat 2 \-n 3
+222
+.EE
+.UNINDENT
+.UNINDENT
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

@@ -1,0 +1,79 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "BG" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+bg \- send jobs to background
+.SH SYNOPSIS
+.nf
+\fBbg\fP [\fIPID\fP \&...]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBbg\fP sends jobs \%<#\:syntax-job-control> to the background, resuming them if they are stopped.
+.sp
+A background job is executed simultaneously with fish, and does not have access to the keyboard. If no job is specified, the last job to be used is put in the background. If \fBPID\fP is specified, the jobs containing the specified process IDs are put in the background.
+.sp
+A PID of the format \fB%n\fP, where n is an integer, will be interpreted as the PID of job number n. Job numbers can be seen in the output of jobs \%<>\&.
+.sp
+When at least one of the arguments isn\(aqt a valid job specifier, \fBbg\fP will print an error without backgrounding anything.
+.sp
+When all arguments are valid job specifiers, \fBbg\fP will background all matching jobs that exist.
+.sp
+The \fB\-h\fP or \fB\-\-help\fP option displays help about using this command.
+.SH EXAMPLE
+.sp
+The typical use is to run something, stop it with ctrl\-z, and then continue it in the background with bg:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> find / \-name \(dq*.js\(dq >/tmp/jsfiles 2>/dev/null # oh no, this takes too long, let\(aqs press Ctrl\-z!
+fish: Job 1, \(aqfind / \-name \(dq*.js\(dq >/tmp/jsfil…\(aq has stopped
+> bg
+Send job 1 \(aqfind / \-name \(dq*.js\(dq >/tmp/jsfiles 2>/dev/null\(aq to background
+> # I can continue using this shell!
+> # Eventually:
+fish: Job 1, \(aqfind / \-name \(dq*.js\(dq >/tmp/jsfil…\(aq has ended
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+\fBbg 123 456 789\fP will background the jobs that contain processes 123, 456 and 789.
+.sp
+If only 123 and 789 exist, it will still background them and print an error about 456.
+.sp
+\fBbg 123 banana\fP or \fBbg banana 123\fP will complain that \(dqbanana\(dq is not a valid process ID.
+.sp
+\fBbg %2\fP will background job 2.
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

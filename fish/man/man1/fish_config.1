@@ -1,0 +1,159 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "FISH_CONFIG" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+fish_config \- start the web-based configuration interface
+.SH SYNOPSIS
+.nf
+\fBfish_config\fP [\fBbrowse\fP]
+\fBfish_config\fP \fBprompt\fP (\fBchoose\fP | \fBlist\fP | \fBsave\fP | \fBshow\fP)
+\fBfish_config\fP \fBtheme\fP
+\fBfish_config\fP \fBtheme\fP \fBchoose\fP \fITHEME\fP \fB[ \fP\fB\-\-color\-theme\fP\fB=\fP(\fBdark\fP | \fBlight\fP)\fB ]\fP
+\fBfish_config\fP \fBtheme\fP \fBdemo\fP
+\fBfish_config\fP \fBtheme\fP \fBdump\fP
+\fBfish_config\fP \fBtheme\fP \fBlist\fP
+\fBfish_config\fP \fBtheme\fP \fBshow\fP [\fITHEME\fP\&...]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBfish_config\fP is used to configure fish.
+.sp
+Without arguments or with the \fBbrowse\fP command it starts the web\-based configuration interface. The web interface allows you to view your functions, variables and history, and to make changes to your prompt and color configuration. It starts a local web server and opens a browser window. When you are finished, close the browser window and press the Enter key to terminate the configuration session.
+.sp
+If the \fBBROWSER\fP environment variable is set, it will be used as the name of the web browser to open instead of the system default.
+.sp
+With the \fBprompt\fP command \fBfish_config\fP can be used to view and choose a prompt from fish\(aqs sample prompts inside the terminal directly.
+.sp
+Available subcommands for the \fBprompt\fP command:
+.INDENT 0.0
+.IP \(bu 2
+\fBchoose\fP loads a sample prompt in the current session.
+.IP \(bu 2
+\fBlist\fP lists the names of the available sample prompts.
+.IP \(bu 2
+\fBsave\fP saves the current prompt to a file (via funcsave \%<>).
+.IP \(bu 2
+\fBshow\fP shows what the given sample prompts (or all) would look like.
+.UNINDENT
+.sp
+With the \fBtheme\fP command \fBfish_config\fP can be used to view and choose a theme (meaning a color scheme) inside the terminal.
+.sp
+Available subcommands for the \fBtheme\fP command:
+.INDENT 0.0
+.IP \(bu 2
+\fBchoose\fP loads a theme in the current session.
+If the theme has light and dark variants (see below), the one matching \fBfish_terminal_color_theme\fP \%<#\:envvar-fish_terminal_color_theme> will be applied (also whenever that variable changes).
+To override \fBfish_terminal_color_theme\fP \%<#\:envvar-fish_terminal_color_theme>, pass the \fB\-\-color\-theme\fP argument.
+.IP \(bu 2
+\fBdemo\fP displays some sample text in the current theme.
+.IP \(bu 2
+\fBdump\fP prints the current theme in a loadable format.
+.IP \(bu 2
+\fBlist\fP lists the names of the available themes.
+.IP \(bu 2
+\fBshow\fP shows what the given themes (or all) would look like.
+.IP \(bu 2
+\fI(not recommended)\fP \fBsave\fP saves the given theme to universal variables \%<#\:variables-universal>\&.
+A theme set this way will not update as \fBfish_terminal_color_theme\fP \%<#\:envvar-fish_terminal_color_theme> changes.
+.UNINDENT
+.sp
+The \fB\-h\fP or \fB\-\-help\fP option displays help about using this command.
+.SH THEME FILES
+.sp
+\fBfish_config theme\fP and the theme selector in the web config tool load their themes from theme files. These are stored in the fish configuration directory, typically \fB~/.config/fish/themes\fP, with a .theme ending.
+.sp
+You can add your own theme by adding a file in that directory.
+.sp
+To get started quickly:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+fish_config theme dump > ~/.config/fish/themes/my.theme
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+which will save your current theme in .theme format.
+.sp
+The format looks like this:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+# name: \(aqMy Theme\(aq
+
+[light]
+# preferred_background: ffffff
+fish_color_normal 000000
+fish_color_autosuggestion 7f7f7f
+fish_color_command 0000ee
+
+[dark]
+# preferred_background: 000000
+fish_color_normal ffffff
+fish_color_autosuggestion 7f7f7f
+fish_color_command 5c5cff
+
+[unknown]
+fish_color_normal \-\-reset
+fish_color_autosuggestion brblack
+fish_color_cancel \-r
+fish_color_command \-\-reset
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+The comments provide name and background color to the web config tool.
+.sp
+Themes can have three variants,
+one for light mode,
+one for dark mode,
+and one for terminals that don\(aqt report colors \%<#\:term-compat-query-background-color> (where \fBfish_terminal_color_theme\fP \%<#\:envvar-fish_terminal_color_theme> is set to \fBunknown\fP).
+.sp
+The other lines are just like \fBset variable value\fP, except that no expansions are allowed. Quotes are, but aren\(aqt necessary.
+.sp
+Other than that, .theme files can contain any variable with a name that matches the regular expression \fB\(aq^fish_(?:pager_)?color_.*$\(aq\fP \- starts with \fBfish_\fP, an optional \fBpager_\fP, then \fBcolor_\fP and then anything.
+.SH EXAMPLE
+.sp
+\fBfish_config\fP or \fBfish_config browse\fP opens a new web browser window and allows you to configure certain fish settings.
+.sp
+\fBfish_config prompt show\fP demos the available sample prompts.
+.sp
+\fBfish_config prompt choose disco\fP makes the disco prompt the prompt for the current session. This can also be used in config.fish \%<#\:configuration> to set the prompt.
+.sp
+\fBfish_config prompt save\fP saves the current prompt to an autoloaded \%<#\:syntax-function-autoloading> file.
+.sp
+\fBfish_config prompt save default\fP chooses the default prompt and saves it.
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

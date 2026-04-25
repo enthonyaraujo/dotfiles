@@ -9,6 +9,9 @@
     frame_width = 0
     padding = 16
     horizontal_padding = 16
+  
+   frame_width = 1 
+   frame_color = #B4BEFE
 
     background = "#1e1e2e"     
     foreground = "#cdd6f4"      

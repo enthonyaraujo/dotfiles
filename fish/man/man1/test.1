@@ -1,0 +1,321 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "TEST" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+test \- perform tests on files and text
+.SH SYNOPSIS
+.nf
+\fBtest\fP [\fIEXPRESSION\fP]
+\fB[ \fP[\fIEXPRESSION\fP]\fB ]\fP
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+NOTE: This page documents the fish builtin \fBtest\fP\&.
+To see the documentation on any non\-fish versions, use \fBcommand man test\fP\&.
+.sp
+\fBtest\fP checks the given conditions and sets the exit status to 0 if they are true, 1 if they are false.
+.sp
+The first form (\fBtest\fP) is preferred. For compatibility with other shells, the second form is available: a matching pair of square brackets (\fB[ [EXPRESSION] ]\fP).
+.sp
+When using a variable or command substitution as an argument with \fBtest\fP you should almost always enclose it in double\-quotes, as variables expanding to zero or more than one argument will most likely interact badly with \fBtest\fP\&.
+.sp
+\fBWarning:\fP
+.INDENT 0.0
+.INDENT 3.5
+For historical reasons, \fBtest\fP supports the one\-argument form (\fBtest foo\fP), and this will also be triggered by e.g. \fBtest \-n $foo\fP if $foo is unset. We recommend you don\(aqt use the one\-argument form and quote all variables or command substitutions used with \fBtest\fP\&.
+.sp
+This confusing misfeature will be removed in future. \fBtest \-n\fP without any additional argument will be false, \fBtest \-z\fP will be true and any other invocation with exactly one or zero arguments, including \fBtest \-d\fP and \fBtest \(dqfoo\(dq\fP will be an error.
+.sp
+The same goes for \fB[\fP, e.g. \fB[ \(dqfoo\(dq ]\fP and \fB[ \-d ]\fP will be errors.
+.sp
+This can be turned on already via the \fBtest\-require\-arg\fP feature flag \%<#\:featureflags>, and will eventually become the default and then only option.
+.UNINDENT
+.UNINDENT
+.SH OPERATORS FOR FILES AND DIRECTORIES
+.INDENT 0.0
+.TP
+\fB\-b\fP \fIFILE\fP
+Returns true if \fIFILE\fP is a block device.
+.TP
+\fB\-c\fP \fIFILE\fP
+Returns true if \fIFILE\fP is a character device.
+.TP
+\fB\-d\fP \fIFILE\fP
+Returns true if \fIFILE\fP is a directory.
+.TP
+\fB\-e\fP \fIFILE\fP
+Returns true if \fIFILE\fP exists.
+.TP
+\fB\-f\fP \fIFILE\fP
+Returns true if \fIFILE\fP is a regular file.
+.TP
+\fB\-g\fP \fIFILE\fP
+Returns true if \fIFILE\fP has the set\-group\-ID bit set.
+.TP
+\fB\-G\fP \fIFILE\fP
+Returns true if \fIFILE\fP exists and has the same group ID as the current user.
+.TP
+\fB\-k\fP \fIFILE\fP
+Returns true if \fIFILE\fP has the sticky bit set. If the OS does not support the concept it returns false. See \%<https://\:en\:.wikipedia\:.org/\:wiki/\:Sticky_bit>\&.
+.TP
+\fB\-L\fP \fIFILE\fP
+Returns true if \fIFILE\fP is a symbolic link.
+.TP
+\fB\-O\fP \fIFILE\fP
+Returns true if \fIFILE\fP exists and is owned by the current user.
+.TP
+\fB\-p\fP \fIFILE\fP
+Returns true if \fIFILE\fP is a named pipe.
+.TP
+\fB\-r\fP \fIFILE\fP
+Returns true if \fIFILE\fP is marked as readable.
+.TP
+\fB\-s\fP \fIFILE\fP
+Returns true if the size of \fIFILE\fP is greater than zero.
+.TP
+\fB\-S\fP \fIFILE\fP
+Returns true if \fIFILE\fP is a socket.
+.TP
+\fB\-t\fP \fIFD\fP
+Returns true if the file descriptor \fIFD\fP is a terminal (TTY).
+.TP
+\fB\-u\fP \fIFILE\fP
+Returns true if \fIFILE\fP has the set\-user\-ID bit set.
+.TP
+\fB\-w\fP \fIFILE\fP
+Returns true if \fIFILE\fP is marked as writable; note that this does not check if the filesystem is read\-only.
+.TP
+\fB\-x\fP \fIFILE\fP
+Returns true if \fIFILE\fP is marked as executable.
+.UNINDENT
+.SH OPERATORS TO COMPARE FILES AND DIRECTORIES
+.INDENT 0.0
+.TP
+\fIFILE1\fP \fB\-nt\fP \fIFILE2\fP
+Returns true if \fIFILE1\fP is newer than \fIFILE2\fP, or \fIFILE1\fP exists and \fIFILE2\fP does not.
+.TP
+\fIFILE1\fP \fB\-ot\fP \fIFILE2\fP
+Returns true if \fIFILE1\fP is older than \fIFILE2\fP, or \fIFILE2\fP exists and \fIFILE1\fP does not.
+.TP
+\fIFILE1\fP \fB\-ef\fP \fIFILE1\fP
+Returns true if \fIFILE1\fP and \fIFILE2\fP refer to the same file.
+.UNINDENT
+.SH OPERATORS FOR TEXT STRINGS
+.INDENT 0.0
+.TP
+\fISTRING1\fP \fB=\fP \fISTRING2\fP
+Returns true if the strings \fISTRING1\fP and \fISTRING2\fP are identical.
+.TP
+\fISTRING1\fP \fB!=\fP \fISTRING2\fP
+Returns true if the strings \fISTRING1\fP and \fISTRING2\fP are not identical.
+.TP
+\fB\-n\fP \fISTRING\fP
+Returns true if the length of \fISTRING\fP is non\-zero.
+.TP
+\fB\-z\fP \fISTRING\fP
+Returns true if the length of \fISTRING\fP is zero.
+.UNINDENT
+.SH OPERATORS TO COMPARE AND EXAMINE NUMBERS
+.INDENT 0.0
+.TP
+\fINUM1\fP \fB\-eq\fP \fINUM2\fP
+Returns true if \fINUM1\fP and \fINUM2\fP are numerically equal.
+.TP
+\fINUM1\fP \fB\-ne\fP \fINUM2\fP
+Returns true if \fINUM1\fP and \fINUM2\fP are not numerically equal.
+.TP
+\fINUM1\fP \fB\-gt\fP \fINUM2\fP
+Returns true if \fINUM1\fP is greater than \fINUM2\fP\&.
+.TP
+\fINUM1\fP \fB\-ge\fP \fINUM2\fP
+Returns true if \fINUM1\fP is greater than or equal to \fINUM2\fP\&.
+.TP
+\fINUM1\fP \fB\-lt\fP \fINUM2\fP
+Returns true if \fINUM1\fP is less than \fINUM2\fP\&.
+.TP
+\fINUM1\fP \fB\-le\fP \fINUM2\fP
+Returns true if \fINUM1\fP is less than or equal to \fINUM2\fP\&.
+.UNINDENT
+.sp
+Both integers and floating point numbers are supported.
+.SH OPERATORS TO COMBINE EXPRESSIONS
+.INDENT 0.0
+.TP
+\fICOND1\fP \fB\-a\fP \fICOND2\fP
+Returns true if both \fICOND1\fP and \fICOND2\fP are true.
+.TP
+\fICOND1\fP \fB\-o\fP \fICOND2\fP
+Returns true if either \fICOND1\fP or \fICOND2\fP are true.
+.UNINDENT
+.sp
+Expressions can be inverted using the \fB!\fP operator:
+.INDENT 0.0
+.TP
+\fB!\fP \fIEXPRESSION\fP
+Returns true if \fIEXPRESSION\fP is false, and false if \fIEXPRESSION\fP is true.
+.UNINDENT
+.sp
+Expressions can be grouped using parentheses.
+.INDENT 0.0
+.TP
+\fB(\fP \fIEXPRESSION\fP \fB)\fP
+Returns the value of \fIEXPRESSION\fP\&.
+.UNINDENT
+.sp
+Note that parentheses will usually require escaping with \fB\e\fP (so they appear as \fB\e(\fP and \fB\e)\fP) to avoid being interpreted as a command substitution.
+.SH EXAMPLES
+.sp
+If the \fB/tmp\fP directory exists, copy the \fB/etc/motd\fP file to it:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test \-d /tmp
+    cp /etc/motd /tmp/motd
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+If the variable \fBMANPATH\fP is defined and not empty, print the contents. (If \fBMANPATH\fP is not defined, then it will expand to zero arguments, unless quoted.)
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test \-n \(dq$MANPATH\(dq
+    echo $MANPATH
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Be careful with unquoted variables:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test \-n $MANPATH
+    # This will also be reached if $MANPATH is unset,
+    # because in that case we have \(gatest \-n\(ga, so it checks if \(dq\-n\(dq is non\-empty, and it is.
+    echo $MANPATH
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+This will change in a future release of fish, or already with the \fBtest\-require\-arg\fP feature flag \%<#\:featureflags> \- if $MANPATH is unset, \fBif test \-n $MANPATH\fP will be false.
+.sp
+Parentheses and the \fB\-o\fP and \fB\-a\fP operators can be combined to produce more complicated expressions. In this example, success is printed if there is a \fB/foo\fP or \fB/bar\fP file as well as a \fB/baz\fP or \fB/bat\fP file.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test \e( \-f /foo \-o \-f /bar \e) \-a \e( \-f /baz \-o \-f /bat \e)
+    echo Success.
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Numerical comparisons will fail if one of the operands is not a number:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test 42 \-eq \(dqThe answer to life, the universe and everything\(dq
+    echo So long and thanks for all the fish # will not be executed
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+A common comparison is with \fBstatus\fP \%<#\:envvar-status>:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test $status \-eq 0
+    echo \(dqPrevious command succeeded\(dq
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+The previous test can likewise be inverted:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test ! $status \-eq 0
+    echo \(dqPrevious command failed\(dq
+end
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+which is logically equivalent to the following:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+if test $status \-ne 0
+    echo \(dqPrevious command failed\(dq
+end
+.EE
+.UNINDENT
+.UNINDENT
+.SH STANDARDS
+.sp
+Unlike many things in fish, \fBtest\fP implements a subset of the IEEE Std 1003.1\-2008 (POSIX.1) standard \%<https://\:pubs\:.opengroup\:.org/\:onlinepubs/\:9699919799/\:utilities/\:test\:.html>\&. The following exceptions apply:
+.INDENT 0.0
+.IP \(bu 2
+The \fB<\fP and \fB>\fP operators for comparing strings are not implemented.
+.IP \(bu 2
+With \fBtest\-require\-arg\fP, the zero\- and one\-argument modes will behave differently.
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+In cases such as this, one can use \fBcommand\fP \fBtest\fP to explicitly use the system\(aqs standalone \fBtest\fP rather than this \fBbuiltin\fP \fBtest\fP\&.
+.UNINDENT
+.UNINDENT
+.SH SEE ALSO
+.sp
+Other commands that may be useful as a condition, and are often easier to use:
+.INDENT 0.0
+.IP \(bu 2
+string \- manipulate strings \%<>, which can do string operations including wildcard and regular expression matching
+.IP \(bu 2
+path \- manipulate and check paths \%<>, which can do file checks and operations, including filters on multiple paths at once
+.UNINDENT
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

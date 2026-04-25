@@ -1,0 +1,152 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "SET_COLOR" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+set_color \- set the terminal color
+.SH SYNOPSIS
+.nf
+\fBset_color\fP [\fIOPTIONS\fP] [\fIVALUE\fP]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBset_color\fP is used to control the color and styling of text in the terminal.
+\fIVALUE\fP describes that styling.
+\fIVALUE\fP can be a reserved color name like \fBred\fP or an RGB color value given as 3 or 6 hexadecimal digits (\(dqF27\(dq or \(dqFF2277\(dq).
+A special keyword \fBnormal\fP resets text formatting to terminal defaults, however it is not recommended and the \fB\-\-reset\fP option is preferred as it is less confusing and more future\-proof.
+.sp
+Valid colors include:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBblack\fP, \fBred\fP, \fBgreen\fP, \fByellow\fP, \fBblue\fP, \fBmagenta\fP, \fBcyan\fP, \fBwhite\fP
+.IP \(bu 2
+\fBbrblack\fP, \fBbrred\fP, \fBbrgreen\fP, \fBbryellow\fP, \fBbrblue\fP, \fBbrmagenta\fP, \fBbrcyan\fP, \fBbrwhite\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+The \fIbr\fP\- (as in \(aqbright\(aq) forms are full\-brightness variants of the 8 standard\-brightness colors on many terminals. \fBbrblack\fP has higher brightness than \fBblack\fP \- towards gray.
+.sp
+An RGB value with three or six hex digits, such as A0FF33 or f2f can be used.
+A three digit value is equivalent to specifying each digit twice; e.g., \fBset_color 2BC\fP is the same as \fBset_color 22BBCC\fP\&.
+Hexadecimal RGB values can be in lower or uppercase.
+.sp
+If \fBfish_term24bit\fP \%<#\:envvar-fish_term24bit> is set to 0, fish will translate RGB values to the nearest color on the 256\-color palette.
+If \fBfish_term256\fP \%<#\:envvar-fish_term256> is also set to 0, fish will translate them to the 16\-color palette instead.
+Fish launched as \fBfish \-d term_support\fP will include diagnostic messages that indicate the color support mode in use.
+.sp
+If multiple colors are specified, fish prefers the first RGB one.
+However if \fBfish_term256\fP \%<#\:envvar-fish_term256> is set to 0, fish prefers the first named color specified.
+.sp
+The following options are available:
+.INDENT 0.0
+.TP
+\fB\-f\fP or \fB\-\-foreground\fP \fICOLOR\fP
+Sets the foreground color.
+This is equivalent to calling \fBset_color COLOR\fP with the exception that the keyword \fBnormal\fP will only reset the foreground color to its default, instead of all colors and modes.
+It cannot be used with \fIVALUE\fP or \fB\-\-print\-colors\fP\&.
+.TP
+\fB\-b\fP or \fB\-\-background\fP \fICOLOR\fP
+Sets the background color.
+.TP
+\fB\-\-underline\-color\fP \fICOLOR\fP
+Set the underline color.
+.TP
+\fB\-c\fP or \fB\-\-print\-colors\fP
+Prints the given colors or a colored list of the 16 named colors.
+It cannot be used with \fB\-\-foreground\fP\&.
+.TP
+\fB\-o\fP or \fB\-\-bold\fP
+Sets bold mode.
+.TP
+\fB\-d\fP or \fB\-\-dim\fP
+Sets dim mode.
+.TP
+\fB\-i\fP or \fB\-\-italics\fP, or \fB\-iSTATE\fP or \fB\-\-italics=STATE\fP
+Sets italics mode. The state can be \fBon\fP (default), or \fBoff\fP\&.
+.TP
+\fB\-r\fP or \fB\-\-reverse\fP, or \fB\-iSTATE\fP or \fB\-\-reverse=STATE\fP
+Sets reverse mode. The state can be \fBon\fP (default), or \fBoff\fP\&.
+.TP
+\fB\-s\fP or \fB\-\-strikethrough\fP, or \fB\-sSTATE\fP or \fB\-\-strikethrough=STATE\fP
+Sets strikethrough mode. The state can be \fBon\fP (default), or \fBoff\fP\&.
+.TP
+\fB\-u\fP or \fB\-\-underline\fP, or \fB\-uSTYLE\fP or \fB\-\-underline=STYLE\fP
+Set the underline mode; supported styles are \fBsingle\fP (default), \fBdouble\fP, \fBcurly\fP, \fBdotted\fP, \fBdashed\fP and \fBoff\fP\&.
+.TP
+\fB\-\-reset\fP
+Reset the text formatting to the terminal defaults before applying the new colors and modes.
+This is equivalent to calling \fBset_color normal\fP except that it is possible to set the foreground color in the same call (e.g. \fBset_color \-\-reset green\fP)
+.TP
+\fB\-\-theme=THEME\fP
+Ignored.
+Color variables \%<#\:variables-color> that contain only this option are treated like missing / empty color variables,
+i.e. fish will use the fallback color instead.
+fish_config theme choose \%<> erases all color variable \%<#\:fish-config-color-variables>
+whose value includes this option, and adds this option to all color variables it sets.
+This allows identifying variables set by a theme,
+and it allows fish to update color variables whenever \fBfish_terminal_color_theme\fP \%<#\:envvar-fish_terminal_color_theme> changes.
+.TP
+\fB\-h\fP or \fB\-\-help\fP
+Displays help about using this command.
+.UNINDENT
+.SH NOTES
+.INDENT 0.0
+.IP 1. 3
+Using \fBset_color normal\fP will reset all colors and modes to the terminal\(aqs default.
+.IP 2. 3
+In contrast, \fBset_color \-\-foreground normal\fP will only reset the foreground color and leave all the other colors and modes unchanged.
+.IP 3. 3
+Because of the risk of confusion, \fBset_color \-\-reset\fP is recommended over \fBset_color normal\fP\&.
+.IP 4. 3
+Setting the background color only affects subsequently written characters. Fish provides no way to set the background color for the entire terminal window. Configuring the window background color (and other attributes such as its opacity) has to be done using whatever mechanisms the terminal provides. Look for a config option.
+.IP 5. 3
+Some terminals use the \fB\-\-bold\fP escape sequence to switch to a brighter color set rather than increasing the weight of text.
+.IP 6. 3
+\fBset_color\fP works by printing sequences of characters to standard output. If used in command substitution or a pipe, these characters will also be captured. This may or may not be desirable. Checking the exit status of \fBisatty stdout\fP before using \fBset_color\fP can be useful to decide not to colorize output in a script.
+.UNINDENT
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+set_color red; echo \(dqRoses are red\(dq
+set_color blue; echo \(dqViolets are blue\(dq
+set_color 62A; echo \(dqEggplants are dark purple\(dq
+set_color normal; echo \(dqNormal is nice\(dq # Resets the background too
+.EE
+.UNINDENT
+.UNINDENT
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

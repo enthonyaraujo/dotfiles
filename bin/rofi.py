@@ -11,14 +11,14 @@ def config_menu():
         "   Workspaces",
         "   Audio Manager",
         "   Bluetooth Manager",
-    )
-    
+        )
+        
     app_actions = (
-        "sh -c 'TERMINAL=kitty EDITOR=nano kitty -e nano ~/.config/hypr/monitors.conf'",  # monitors
-        "sh -c 'TERMINAL=kitty EDITOR=nano kitty -e nano ~/.config/hypr/environmentvariables.conf'",  # environment_variables
-        "sh -c 'TERMINAL=kitty EDITOR=nano kitty -e nano ~/.config/hypr/input_keybinds.conf'",  # input and keybindings
-        "sh -c 'TERMINAL=kitty EDITOR=nano kitty -e nano ~/.config/hypr/my_programs.conf'",  # autostart
-        "sh -c 'TERMINAL=kitty EDITOR=nano kitty -e nano ~/.config/hypr/window_workspaces.conf'",
+        "sh -c 'TERMINAL=kitty EDITOR=nvim kitty nvim ~/.config/hypr/monitors.conf'",  # monitors
+        "sh -c 'TERMINAL=kitty EDITOR=nvim kitty nvim ~/.config/hypr/environmentvariables.conf'",  # environment_variables
+        "sh -c 'TERMINAL=kitty EDITOR=nvim kitty nvim ~/.config/hypr/input_keybinds.conf'",  # input and keybindings
+        "sh -c 'TERMINAL=kitty EDITOR=nvim kitty nvim ~/.config/hypr/my_programs.conf'",  # autostart
+        "sh -c 'TERMINAL=kitty EDITOR=nvim kitty nvim ~/.config/hypr/window_workspaces.conf'",
         "pavucontrol",
         "blueman-manager",
     )

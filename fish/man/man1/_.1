@@ -1,0 +1,90 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "_" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+_ \- call fish's translations
+.SH SYNOPSIS
+.nf
+\fB_\fP \fISTRING\fP
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fB_\fP translates its arguments into the current language, if possible.
+.sp
+This only works with messages which are translated as part of fish\(aqs own sources, so using it as part of your own fish scripts which are not upstreamed into the fish repo will not work unless the exact same message also exists upstream.
+.sp
+It requires fish to be built with gettext support. If that support is disabled or there is no translation it will echo the argument back.
+.sp
+The language depends on the current locale, set with \fBLANG\fP \%<#\:envvar-LANG>, \fBLC_MESSAGES\fP \%<#\:envvar-LC_MESSAGES>, \fBLC_ALL\fP \%<#\:envvar-LC_ALL>, and \fBLANGUAGE\fP \%<#\:envvar-LANGUAGE>\&.
+These variables do not have to be exported for fish to use them, and fish\(aqs variable scopes are supported.
+If other programs launched via fish should respect these locale variables they have to be exported to make them available outside of fish.
+.sp
+For \fBLANGUAGE\fP \%<#\:envvar-LANGUAGE> you can use a list, or use colons to separate multiple languages.
+.sp
+If the status language set \%<#\:status-language> command was used, its arguments specify the language precedence, and the environment variables are ignored.
+.SH OPTIONS
+.sp
+\fB_\fP takes no options.
+.SH EXAMPLES
+.sp
+Use German translations:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> set LANG de_DE.UTF\-8
+> _ file
+Datei
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Specify a precedence of languages (only works with \fBLANGUAGE\fP \%<#\:envvar-LANGUAGE>):
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> set LANGUAGE pt de
+> _ file  # This message has a Portuguese translation.
+arquivo
+> _ \(dqInvalid arguments\(dq  # This message does not have a Portuguese translation, but a German one.
+Ungültige Argumente
+> _ untranslatable  # No translation in Portuguese, nor in German.
+untranslatable
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Note that the specific examples may change if translations are added/modified.
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

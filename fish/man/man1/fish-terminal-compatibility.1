@@ -1,0 +1,669 @@
+'\" t
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "FISH-TERMINAL-COMPATIBILITY" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.sp
+fish writes various control sequences to the terminal.
+Some must be implemented to enable basic functionality,
+while others enable optional features and may be ignored by the terminal.
+.sp
+The terminal must be able to parse Control Sequence Introducer (CSI) commands, Operating System Commands (OSC) and optionally Device Control Strings (DCS).
+These are defined by ECMA\-48.
+If a valid CSI, OSC or DCS sequence does not represent a command implemented by the terminal, the terminal must ignore it.
+For historical reasons, OSC sequences may be terminated with \fB\ex07\fP instead of \fB\ee\e\e\fP\&.
+.sp
+Control sequences are denoted in a fish\-like syntax.
+Special characters other than \fB\e\fP are not escaped.
+Spaces are only added for readability and are not part of the sequence.
+Placeholders are written as \fBPs\fP for a number or \fBPt\fP for an arbitrary printable string.
+.sp
+\fBNOTE:\fP fish does not rely on your system\(aqs terminfo database.
+In this document, terminfo (TI) codes are included for reference only.
+.SH REQUIRED COMMANDS
+.TS
+box center;
+l|l|l.
+T{
+Sequence
+T}	T{
+TI
+T}	T{
+Description
+T}
+_
+T{
+\fB\er\fP
+T}	T{
+n/a
+T}	T{
+Move cursor to the beginning of the line
+T}
+_
+T{
+\fB\en\fP
+T}	T{
+cud1
+T}	T{
+Move cursor down one line.
+T}
+_
+T{
+\fB\ee[\ Ps\ A\fP
+T}	T{
+cuu
+T}	T{
+Move cursor up Ps columns, or one column if no parameter.
+T}
+_
+T{
+\fB\ee[\ Ps\ C\fP
+T}	T{
+cuf
+T}	T{
+Move cursor to the right Ps columns, or one column if no parameter.
+T}
+_
+T{
+\fB\ex08\fP
+T}	T{
+cub1
+T}	T{
+Move cursor one column to the left.
+T}
+_
+T{
+\fB\ee[\ Ps\ D\fP
+T}	T{
+cub
+T}	T{
+Move cursor to the left Ps times.
+T}
+_
+T{
+\fB\ee[H\fP
+T}	T{
+cup
+T}	T{
+Set cursor position (no parameters means: move to row 1, column 1).
+T}
+_
+T{
+\fB\ee[K\fP
+T}	T{
+el
+T}	T{
+Clear to end of line.
+T}
+_
+T{
+\fB\ee[J\fP
+T}	T{
+ed
+T}	T{
+Clear to the end of screen.
+T}
+_
+T{
+\fB\ee[2J\fP
+T}	T{
+clear
+T}	T{
+Clear the screen.
+T}
+_
+T{
+\fB\ee[0c\fP
+T}	T{
+T}	T{
+Request Primary Device Attribute.
+The terminal must respond with a CSI command that starts with the \fB?\fP parameter byte (so a sequence starting with \fB\ee[?\fP) and has \fBc\fP as final byte.
+.sp
+Failure to implement this will cause a brief pause at startup followed by a warning.
+For the time being, both can be turned off by turning off the \fBquery\-terminal\fP feature flag \%<#\:featureflags>\&.
+T}
+_
+T{
+n/a
+T}	T{
+am
+T}	T{
+Soft wrap text at screen width.
+T}
+_
+T{
+n/a
+T}	T{
+xenl
+T}	T{
+Printing to the last column does not move the cursor to the next line.
+Verify this by running \fBprintf %0\(dq$COLUMNS\(dqd 0; sleep 3\fP
+T}
+.TE
+.SH OPTIONAL COMMANDS
+.TS
+box center;
+l|l|l.
+T{
+Sequence
+T}	T{
+TI
+T}	T{
+Description
+T}
+_
+T{
+\fB\et\fP
+T}	T{
+it
+T}	T{
+Move the cursor to the next tab stop (à 8 columns).
+This is mainly relevant if your prompt includes tabs.
+T}
+_
+T{
+\fB\ee[m\fP
+T}	T{
+sgr0
+T}	T{
+Turn off bold/dim/italic/underline/strikethrough/reverse attribute modes and select default colors.
+T}
+_
+T{
+\fB\ee[1m\fP
+T}	T{
+bold
+T}	T{
+Enter bold mode.
+T}
+_
+T{
+\fB\ee[2m\fP
+T}	T{
+dim
+T}	T{
+Enter dim mode.
+T}
+_
+T{
+\fB\ee[3m\fP
+T}	T{
+sitm
+T}	T{
+Enter italic mode.
+T}
+_
+T{
+\fB\ee[4m\fP
+T}	T{
+smul
+T}	T{
+Enter underline mode.
+T}
+_
+T{
+\fB\ee[4:2m\fP
+T}	T{
+Su
+T}	T{
+Enter double underline mode.
+T}
+_
+T{
+\fB\ee[4:3m\fP
+T}	T{
+Su
+T}	T{
+Enter curly underline mode.
+T}
+_
+T{
+\fB\ee[4:4m\fP
+T}	T{
+Su
+T}	T{
+Enter dotted underline mode.
+T}
+_
+T{
+\fB\ee[4:5m\fP
+T}	T{
+Su
+T}	T{
+Enter dashed underline mode.
+T}
+_
+T{
+\fB\ee[7m\fP
+T}	T{
+rev
+T}	T{
+Enter reverse video mode (swap foreground and background colors).
+T}
+_
+T{
+\fB\ee[9m\fP
+T}	T{
+smxx
+T}	T{
+Enter strikethrough mode
+T}
+_
+T{
+\fB\ee[23m\fP
+T}	T{
+ritm
+T}	T{
+Exit italic mode.
+T}
+_
+T{
+\fB\ee[24m\fP
+T}	T{
+rmul
+T}	T{
+Exit underline mode.
+T}
+_
+T{
+\fB\ee[29m\fP
+T}	T{
+rmxx
+T}	T{
+Exit strikethrough mode.
+T}
+_
+T{
+\fB\ee[38;5; Ps m\fP
+T}	T{
+setaf
+T}	T{
+Select foreground color Ps from the 256\-color\-palette.
+T}
+_
+T{
+\fB\ee[48;5; Ps m\fP
+T}	T{
+setab
+T}	T{
+Select background color Ps from the 256\-color\-palette.
+T}
+_
+T{
+\fB\ee[58:5: Ps m\fP (note: colons not semicolons)
+T}	T{
+Su
+T}	T{
+Select underline color Ps from the 256\-color\-palette.
+T}
+_
+T{
+\fB\ee[ Ps m\fP
+T}	T{
+setaf
+setab
+T}	T{
+Select foreground/background color. This uses a color in the aforementioned 256\-color\-palette, based on the range that contains the parameter:
+30\-37 maps to foreground 0\-7,
+40\-47 maps to background 0\-7,
+90\-97 maps to foreground 8\-15 and
+100\-107 maps to background 8\-15.
+T}
+_
+T{
+\fB\ee[38;2; Ps ; Ps ; Ps m\fP
+T}	T{
+T}	T{
+Select foreground color from 24\-bit RGB colors.
+T}
+_
+T{
+\fB\ee[48;2; Ps ; Ps ; Ps m\fP
+T}	T{
+T}	T{
+Select background color from 24\-bit RGB colors.
+T}
+_
+T{
+\fB\ee[39m\fP
+T}	T{
+T}	T{
+Reset foreground color to the terminal\(aqs default.
+T}
+_
+T{
+\fB\ee[49m\fP
+T}	T{
+T}	T{
+Reset background color to the terminal\(aqs default.
+T}
+_
+T{
+\fB\ee[58:2:: Ps : Ps : Ps m\fP (note: colons not semicolons)
+T}	T{
+Su
+T}	T{
+Select underline color from 24\-bit RGB colors.
+T}
+_
+T{
+\fB\ee[59m\fP
+T}	T{
+Su
+T}	T{
+Reset underline color to the default (follow the foreground color).
+T}
+_
+T{
+\fB\ee[ Ps S\fP
+T}	T{
+indn
+T}	T{
+Scroll up the content (not the viewport) Ps lines (called \fBSCROLL UP\fP / \fBSU\fP by ECMA\-48 and \(dqscroll forward\(dq by terminfo).
+When fish detects support for this feature, status test\-terminal\-features scroll\-content\-up \%<#\:status-test-terminal-features> will return 0,
+which enables the \fBctrl\fP\-\fBl\fP binding to use the scrollback\-push \%<#\:special-input-functions-scrollback-push> special input function.
+T}
+_
+T{
+\fB\ee[= Ps u\fP, \fB\ee[? Ps u\fP
+T}	T{
+n/a
+T}	T{
+Enable the kitty keyboard protocol.
+T}
+_
+T{
+\fB\ee[6n\fP
+T}	T{
+n/a
+T}	T{
+Request cursor position report.
+The response must be of the form \fB\ee[ Ps ; Ps R\fP
+where the first parameter is the row number
+and the second parameter is the column number.
+Both start at 1.
+.sp
+This is used for truncating multiline autosuggestions at the screen\(aqs bottom edge,
+by the scrollback\-push \%<#\:special-input-functions-scrollback-push> special input function,
+and inside terminals that implement the OSC 133 click_events feature.
+T}
+_
+T{
+\fB\ee[ \ex20 q\fP
+T}	T{
+Se
+T}	T{
+Reset cursor style to the terminal\(aqs default. This is not used as of today but may be
+in future.
+T}
+_
+T{
+\fB\ee[ Ps \ex20 q\fP
+T}	T{
+Ss
+T}	T{
+Set cursor style (DECSCUSR); Ps is 2, 4 or 6 for block, underscore or line shape.
+T}
+_
+T{
+\fB\ee[ Ps q\fP
+T}	T{
+n/a
+T}	T{
+Request terminal name and version (XTVERSION).
+This is only used for temporary workarounds for incompatible terminals.
+T}
+_
+T{
+\fB\ee[?25h\fP
+T}	T{
+cvvis
+T}	T{
+Enable cursor visibility (DECTCEM).
+T}
+_
+T{
+\fB\ee[?1004h\fP
+T}	T{
+n/a
+T}	T{
+Enable focus reporting.
+T}
+_
+T{
+\fB\ee[?1004l\fP
+T}	T{
+n/a
+T}	T{
+Disable focus reporting.
+T}
+_
+T{
+\fB\ee[?1049h\fP
+T}	T{
+n/a
+T}	T{
+Enable alternate screen buffer.
+T}
+_
+T{
+\fB\ee[?1049l\fP
+T}	T{
+n/a
+T}	T{
+Disable alternate screen buffer.
+T}
+_
+T{
+\fB\ee[?2004h\fP
+T}	T{
+T}	T{
+Enable bracketed paste.
+T}
+_
+T{
+\fB\ee[?2004l\fP
+T}	T{
+T}	T{
+Disable bracketed paste.
+T}
+_
+T{
+\fB\ee[?2031h\fP
+T}	T{
+T}	T{
+Enable unsolicited color theme reporting \%<https://\:contour-terminal\:.org/\:vt-extensions/\:color-palette-update-notifications/>\&.
+When enabled, the terminal should send \fB\ee[?997;1n\fP or \fB\ee[?997;2n\fP whenever its color theme has changed.
+This prompts fish to query for background color\&.
+T}
+_
+T{
+\fB\ee[?2031l\fP
+T}	T{
+T}	T{
+Disable unsolicited color theme reporting.
+T}
+_
+T{
+\fB\ee]0; Pt \ee\e\e\fP
+T}	T{
+ts
+T}	T{
+Set terminal window title (OSC 0). Used in fish_title \%<>\&.
+T}
+_
+T{
+\fB\ee]2; Pt \ee\e\e\fP
+T}	T{
+ts
+T}	T{
+Set terminal tab title (OSC 1). Used in fish_tab_title \%<>\&.
+T}
+_
+T{
+\fB\ee]7;file:// Pt / Pt \ee\e\e\fP
+T}	T{
+T}	T{
+Report working directory (OSC 7).
+Since the terminal may be running on a different system than a (remote) shell,
+the hostname (first parameter) will \fInot\fP be \fBlocalhost\fP\&.
+T}
+_
+T{
+\fB\ee]8;; Pt \ee\e\e\fP
+T}	T{
+T}	T{
+Create a hyperlink (OSC 8) \%<https://\:gist\:.github\:.com/\:egmontkob/\:eb114294efbcd5adb1944c9f3cb5feda>\&.
+This is used in fish\(aqs man pages.
+T}
+_
+T{
+\fB\ee]11;?\ee\e\e\fP
+T}	T{
+n/a
+T}	T{
+Query background color.
+.sp
+A valid response would be of the form \fB\ee]11;rgb: Pt / Pt / Pt \ee\e\e\fP or \fB\ee]11;rgba: Pt / Pt / Pt / Pt\ee\e\e\fP
+where the first three parameters consist of one to four hex digits each, representing red, blue and green components.
+.sp
+This is used to populate \fBfish_terminal_color_theme\fP \%<#\:envvar-fish_terminal_color_theme>,
+which is used to select a theme variant \%<#\:fish-config-theme-files> optimized for the terminal\(aqs color theme.
+T}
+_
+T{
+\fB\ee]52;c; Pt \ee\e\e\fP
+T}	T{
+T}	T{
+Copy to clipboard (OSC 52). Used by fish_clipboard_copy \%<>\&.
+T}
+_
+T{
+\fB\ee]133;A; click_events=1\ee\e\e\fP
+T}	T{
+T}	T{
+Mark prompt start (OSC 133), with kitty\(aqs \fBclick_events\fP extension.
+The \fBclick_events\fP extension enables mouse clicks to move the cursor or select pager items,
+assuming that cursor position reporting is available.
+T}
+_
+T{
+\fB\ee]133;B\ee\e\e\fP
+T}	T{
+T}	T{
+Mark prompt end (OSC 133).
+T}
+_
+T{
+\fB\ee]133;C; cmdline_url= Pt \ee\e\e\fP
+T}	T{
+T}	T{
+Mark command start (OSC 133), with kitty\(aqs \fBcmdline_url\fP extension whose parameter is the URL\-encoded command line.
+T}
+_
+T{
+\fB\ee]133;D; Ps \ee\e\e\fP
+T}	T{
+T}	T{
+Mark command end (OSC 133);  Ps is the exit status.
+T}
+_
+T{
+\fB\eeP+q Pt \ee\e\e\fP
+T}	T{
+T}	T{
+Request terminfo capability (XTGETTCAP).
+The parameter is the capability\(aqs hex\-encoded terminfo code.
+.sp
+The response must be of the form
+\fB\eeP1+q Pt \ee\e\e\fP (\(dqboolean\(dq) or \fB\eeP1+q Pt = Pt \ee\e\e\fP (\(dqstring\(dq).
+In either variant, the first parameter must be the same as the request parameter.
+.sp
+fish queries the following string capabilities:
+.INDENT 0.0
+.IP \(bu 2
+indn
+.sp
+The response\(aqs second parameter is ignored.
+.IP \(bu 2
+\fBquery\-os\-name\fP (for status terminal\-os \%<#\:status-terminal-os>)
+.sp
+Terminals running on Unix should respond with the hex encoding of \fB$(uname \-s)\fP as second parameter.
+.UNINDENT
+T}
+.TE
+.SH DCS COMMANDS AND GNU SCREEN
+.sp
+DCS parsing is optional because fish temporarily switches to the alternate screen before printing any DCS commands.
+However, since GNU screen neither allows turning on the alternate screen buffer by default,
+nor treats DCS commands in a compatible way,
+fish\(aqs initial prompt may be garbled by a DCS payload like \fB+q696e646e\fP\&.
+For the time being, fish works around this by checking for presence of the \fBSTY\fP environment variable.
+If that doesn\(aqt work for some reason, you can add this to your \fB~/.screenrc\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+altscreen on
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Or add this to your \fBconfig.fish\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+function GNU\-screen\-workaround \-\-on\-event fish_prompt
+    commandline \-f repaint
+    functions \-\-erase GNU\-screen\-workaround
+end
+.EE
+.UNINDENT
+.UNINDENT
+.SH UNICODE CODEPOINTS
+.sp
+By default, fish outputs the following non\-ASCII characters:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+× ► ¶ ⏎ • ● … μ – ’ ‘ “ ” ← → ↑ ↓
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+as well as control pictures (U+2400 through U+241F),
+and locale\-specific ones in translated strings \%<#\:variables-locale>\&.
+.SH Author
+fish-shell developers
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

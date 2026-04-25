@@ -1,0 +1,635 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "BIND" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+bind \- handle fish key bindings
+.SH SYNOPSIS
+.nf
+\fBbind\fP [(\fB\-M\fP | \fB\-\-mode\fP) \fIMODE\fP] [(\fB\-m\fP | \fB\-\-sets\-mode\fP) \fINEW_MODE\fP] [\fB\-\-preset\fP | \fB\-\-user\fP] [\fB\-s\fP | \fB\-\-silent\fP] \fIKEYS\fP \fICOMMAND\fP \&...
+\fBbind\fP [(\fB\-M\fP | \fB\-\-mode\fP) \fIMODE\fP] [\fB\-\-preset\fP] [\fB\-\-user\fP] [\fB\-\-color\fP \fIWHEN\fP] [\fIKEYS\fP]
+\fBbind\fP [\fB\-a\fP | \fB\-\-all\fP] [\fB\-\-preset\fP] [\fB\-\-user\fP] [\fB\-\-color\fP \fIWHEN\fP]
+\fBbind\fP (\fB\-f\fP | \fB\-\-function\-names\fP)
+\fBbind\fP (\fB\-K\fP | \fB\-\-key\-names\fP)
+\fBbind\fP (\fB\-L\fP | \fB\-\-list\-modes\fP)
+\fBbind\fP (\fB\-e\fP | \fB\-\-erase\fP) [(\fB\-M\fP | \fB\-\-mode\fP) \fIMODE\fP] [\fB\-\-preset\fP] [\fB\-\-user\fP] [\fB\-a\fP | \fB\-\-all\fP] | \fIKEYS\fP \&...
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBbind\fP manages key bindings.
+.sp
+If both \fBKEYS\fP and \fBCOMMAND\fP are given, \fBbind\fP adds (or replaces) a binding in \fBMODE\fP\&.
+If only \fBKEYS\fP is given, \fBbind\fP lists any existing bindings for those keys in \fBMODE\fP or in all modes.
+If no \fBKEYS\fP argument is provided, \fBbind\fP lists all bindings in \fBMODE\fP or in all modes.
+.sp
+\fBKEYS\fP is a comma\-separated list of key names.
+Modifier keys can be specified by prefixing a key name with a combination of \fBctrl\-\fP, \fBalt\-\fP, \fBshift\-\fP and \fBsuper\-\fP (i.e. the \(dqwindows\(dq or \(dqcommand\(dq key).
+For example, pressing \fBw\fP while holding the Alt modifier is written as \fBalt\-w\fP\&.
+Key names are case\-sensitive; for example \fBalt\-W\fP is the same as \fBalt\-shift\-w\fP\&.
+\fBctrl\-x,ctrl\-e\fP would mean pressing \fBctrl\fP\-\fBx\fP followed by \fBctrl\fP\-\fBe\fP\&.
+.sp
+Some keys have names, usually because they don\(aqt have an obvious printable character representation.
+They are:
+.INDENT 0.0
+.IP \(bu 2
+the arrow keys \fBup\fP, \fBdown\fP, \fBleft\fP and \fBright\fP,
+.IP \(bu 2
+\fBbackspace\fP,
+.IP \(bu 2
+\fBcomma\fP (\fB,\fP),
+.IP \(bu 2
+\fBdelete\fP,
+.IP \(bu 2
+\fBend\fP,
+.IP \(bu 2
+\fBenter\fP,
+.IP \(bu 2
+\fBescape\fP,
+.IP \(bu 2
+\fBf1\fP through \fBf12\fP\&.
+.IP \(bu 2
+\fBhome\fP,
+.IP \(bu 2
+\fBinsert\fP,
+.IP \(bu 2
+\fBmenu\fP,
+.IP \(bu 2
+\fBminus\fP (\fB\-\fP),
+.IP \(bu 2
+\fBpageup\fP,
+.IP \(bu 2
+\fBpagedown\fP,
+.IP \(bu 2
+\fBprintscreen\fP,
+.IP \(bu 2
+\fBspace\fP and
+.IP \(bu 2
+\fBtab\fP,
+.UNINDENT
+.sp
+These names are case\-sensitive.
+.sp
+An empty value (\fB\(aq\(aq\fP) for \fBKEYS\fP designates the generic binding that will be used if nothing else matches. For most bind modes, it makes sense to bind this to the \fBself\-insert\fP function (i.e. \fBbind \(aq\(aq self\-insert\fP). This will insert any keystrokes that have no bindings otherwise. Non\-printable characters are ignored by the editor, so this will not result in control sequences being inserted.
+.sp
+To find the name of a key combination you can use fish_key_reader \%<>\&.
+.sp
+\fBCOMMAND\fP can be any fish command, but it can also be one of a set of special input functions. These include functions for moving the cursor, operating on the kill\-ring, performing tab completion, etc. Use \fBbind \-\-function\-names\fP or see below for a list of these input functions.
+.sp
+\fBNote:\fP
+.INDENT 0.0
+.INDENT 3.5
+If a script changes the commandline, it should finish by calling the \fBrepaint\fP special input function.
+.UNINDENT
+.UNINDENT
+.sp
+Key bindings may use \(dqmodes\(dq, which mimics vi\(aqs modal input behavior. The default mode is \(dqdefault\(dq (in vi\-mode, that\(aqs vi\(aqs \(dqnormal\(dq mode). Every key binding applies to a single mode; you can specify which one with \fB\-M MODE\fP\&. If the key binding should change the mode, you can specify the new mode with \fB\-m NEW_MODE\fP\&. The mode can be viewed and changed via the \fB$fish_bind_mode\fP variable. If you want to change the mode from inside a fish function, use \fBset fish_bind_mode MODE\fP\&.
+.sp
+To save custom key bindings, put the \fBbind\fP statements into config.fish \%<#\:configuration>\&. Alternatively, fish also automatically executes a function called \fBfish_user_key_bindings\fP if it exists.
+.SH OPTIONS
+.sp
+The following options are available:
+.INDENT 0.0
+.TP
+\fB\-f\fP or \fB\-\-function\-names\fP
+Display a list of available input functions
+.TP
+\fB\-K\fP or \fB\-\-key\-names\fP
+Display a list of available named keys such as \fBbackspace\fP\&.
+.TP
+\fB\-L\fP or \fB\-\-list\-modes\fP
+Display a list of defined bind modes
+.TP
+\fB\-M MODE\fP or \fB\-\-mode\fP \fIMODE\fP
+Specify a bind mode that the bind is used in. Defaults to \(dqdefault\(dq.
+If you use vi bindings \%<#\:vi-mode>, that\(aqs the \fIcommand\fP mode,
+what vi calls \(dqnormal\(dq mode.
+.TP
+\fB\-m NEW_MODE\fP or \fB\-\-sets\-mode\fP \fINEW_MODE\fP
+Change the current mode to \fINEW_MODE\fP after this binding is executed
+.TP
+\fB\-e\fP or \fB\-\-erase\fP
+Erase the binding with the given sequence and mode instead of defining a new one.
+Multiple sequences can be specified with this flag.
+Specifying \fB\-a\fP or \fB\-\-all\fP with \fB\-M\fP or \fB\-\-mode\fP erases all binds in the given mode regardless of sequence.
+Specifying \fB\-a\fP or \fB\-\-all\fP without \fB\-M\fP or \fB\-\-mode\fP erases all binds in all modes regardless of sequence.
+.TP
+\fB\-a\fP or \fB\-\-all\fP
+See \fB\-\-erase\fP
+.TP
+\fB\-\-preset\fP and \fB\-\-user\fP
+Specify if bind should operate on user or preset bindings.
+User bindings take precedence over preset bindings when fish looks up mappings.
+By default, all \fBbind\fP invocations work on the \(dquser\(dq level except for listing, which will show both levels.
+All invocations except for inserting new bindings can operate on both levels at the same time (if both \fB\-\-preset\fP and \fB\-\-user\fP are given).
+\fB\-\-preset\fP should only be used in full binding sets (like when working on \fBfish_vi_key_bindings\fP).
+.TP
+\fB\-s\fP or \fB\-\-silent\fP
+Silences error message for unbound sequences.
+.TP
+\fB\-\-color\fP \fIWHEN\fP
+Controls when to use syntax highlighting colors when listing bindings.
+\fIWHEN\fP can be \fBauto\fP (the default, colorize if the output is a terminal \%<>), \fBalways\fP, or \fBnever\fP\&.
+.TP
+\fB\-h\fP or \fB\-\-help\fP
+Displays help about using this command.
+.UNINDENT
+.SH SPECIAL INPUT FUNCTIONS
+.sp
+The following special input functions are available:
+.INDENT 0.0
+.TP
+.B \fBand\fP
+only execute the next function if the previous succeeded (note: only some functions report success)
+.TP
+.B \fBaccept\-autosuggestion\fP
+accept the current autosuggestion. Returns false when there was nothing to accept.
+.TP
+.B \fBbackward\-char\fP
+move one character to the left.
+If the completion pager is active, select the previous completion instead.
+.TP
+.B \fBbackward\-char\-passive\fP
+move one character to the left, but do not trigger any non\-movement\-related operations. If the cursor is at the start of
+the commandline, does nothing. Does not change the selected item in the completion pager UI when shown.
+.TP
+.B \fBbackward\-token\fP
+move one argument to the left
+.TP
+.B \fBbackward\-delete\-char\fP
+deletes one character of input to the left of the cursor
+.TP
+.B \fBbackward\-kill\-token\fP
+move the argument to the left of the cursor to the killring
+.TP
+.B \fBbackward\-kill\-line\fP
+move everything from the beginning of the line to the cursor to the killring
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBbackward\-kill\-path\-component\fP
+move one path component to the left of the cursor to the killring. A path component is everything likely to belong to a path component, i.e. not any of the following: \fI/={,}\(aq\(dq:@ |;<>&\fP, plus newlines and tabs.
+.TP
+.B \fBbackward\-kill\-word\fP
+move the word to the left of the cursor to the killring, until the start of the current word (like vim\(aqs \fBdb\fP)
+.TP
+.B \fBbackward\-kill\-bigword\fP
+move the whitespace\-delimited word to the left of the cursor to the killring, until the start of the current word (like vim\(aqs \fBdB\fP)
+.TP
+.B \fBbackward\-path\-component\fP
+move one path component to the left
+.TP
+.B \fBbackward\-word\fP
+move one word to the left, stopping at the start of the previous word (like vim\(aqs \fBb\fP, or Emacs\(aq \fBM\-b\fP but differs slightly in word division rules)
+.TP
+.B \fBbackward\-bigword\fP
+move one whitespace\-delimited word to the left, stopping at the start of the previous word (like vim\(aqs \fBB\fP)
+.TP
+.B \fBbackward\-word\-end\fP
+move to the end of the previous word (like vim\(aqs \fBge\fP)
+.TP
+.B \fBbackward\-bigword\-end\fP
+move to the end of the previous whitespace\-delimited word (like vim\(aqs \fBgE\fP)
+.TP
+.B \fBbeginning\-of\-buffer\fP
+moves to the beginning of the buffer, i.e. the start of the first line
+.TP
+.B \fBbeginning\-of\-history\fP
+move to the beginning of the history
+.TP
+.B \fBbeginning\-of\-line\fP
+move to the beginning of the line
+.TP
+.B \fBbegin\-selection\fP
+start selecting text
+.TP
+.B \fBcancel\fP
+close the pager if it is open, or undo the most recent completion if one was just inserted
+.TP
+.B \fBcancel\-commandline\fP
+cancel the current commandline and replace it with a new empty one, leaving the old one in place with a marker to show that it was cancelled
+.TP
+.B \fBcapitalize\-word\fP
+make the current word begin with a capital letter
+.TP
+.B \fBclear\-commandline\fP
+empty the entire commandline
+.TP
+.B \fBclear\-screen\fP
+clears the screen and redraws the prompt.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBscrollback\-push\fP
+pushes earlier output to the terminal scrollback, positioning the prompt at the top.
+This requires the terminal to implement the ECMA\-48 SCROLL UP \%<#\:term-compat-indn> command and cursor position reporting \%<#\:term-compat-cursor-position-report>\&.
+.TP
+.B \fBcomplete\fP
+guess the remainder of the current token
+.TP
+.B \fBcomplete\-and\-search\fP
+invoke the searchable pager on completion options (for convenience, this also moves backwards in the completion pager)
+.TP
+.B \fBdelete\-char\fP
+delete one character to the right of the cursor
+.TP
+.B \fBdelete\-or\-exit\fP
+delete one character to the right of the cursor, or exit the shell if the commandline is empty
+.TP
+.B \fBdown\-line\fP
+move down one line
+.TP
+.B \fBdowncase\-word\fP
+make the current word lowercase
+.TP
+.B \fBend\-of\-buffer\fP
+moves to the end of the buffer, i.e. the end of the last line;
+or if already at the end of the commandline, accept the current autosuggestion.
+.TP
+.B \fBend\-of\-history\fP
+move to the end of the history
+.TP
+.B \fBend\-of\-line\fP
+move to the end of the line
+.TP
+.B \fBend\-selection\fP
+end selecting text
+.TP
+.B \fBexpand\-abbr\fP
+expands any abbreviation currently under the cursor
+.TP
+.B \fBexecute\fP
+run the current commandline
+.TP
+.B \fBexit\fP
+exit the shell
+.TP
+.B \fBforward\-token\fP
+move one argument to the right
+.TP
+.B \fBforward\-char\fP
+move one character to the right; or if at the end of the commandline, accept the current autosuggestion.
+If the completion pager is active, select the next completion instead.
+.TP
+.B \fBforward\-char\-passive\fP
+move one character to the right, but do not trigger any non\-movement\-related operations. If the cursor is at the end of the
+commandline, does not accept the current autosuggestion (if any). Does not change the selected item in the completion pager,
+if shown.
+.TP
+.B \fBforward\-path\-component\fP
+move one path component to the right; or if at the end of the commandline, accept a path component from the current autosuggestion.
+.TP
+.B \fBforward\-single\-char\fP
+move one character to the right; or if at the end of the commandline, accept a single char from the current autosuggestion.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBforward\-word\fP
+move one word to the right, stopping after the end of the current word; or if at the end of the commandline, accept one word
+from the current autosuggestion.
+.TP
+.B \fBforward\-word\-vi\fP
+like forward\-word, but stops at the start of the next word (like vim\(aqs \fBw\fP)
+.TP
+.B \fBforward\-word\-end\fP
+like forward\-word, but stops at the end of the next word (like vim\(aqs \fBe\fP)
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \fBforward\-bigword\fP
+move one whitespace\-delimited word to the right, stopping after the end of the current word; or if at the end of the commandline, accept one word from the current autosuggestion.
+.TP
+.B \fBforward\-bigword\-vi\fP
+like forward\-bigword, but stops at the start of the next word (like vim\(aqs \fBW\fP)
+.TP
+.B \fBforward\-bigword\-end\fP
+like forward\-bigword, but stops at the end of the next word (like vim\(aqs \fBE\fP)
+.TP
+.B \fBhistory\-pager\fP
+invoke the searchable pager on history (incremental search); or if the history pager is already active, search further backwards in time.
+.TP
+.B \fBhistory\-delete\fP
+permanently delete the current history item, either from the history pager or from an active up\-arrow history search
+.TP
+.B \fBhistory\-search\-backward\fP
+search the history for the previous match
+.TP
+.B \fBhistory\-search\-forward\fP
+search the history for the next match
+.TP
+.B \fBhistory\-prefix\-search\-backward\fP
+search the history for the previous prefix match
+.TP
+.B \fBhistory\-prefix\-search\-forward\fP
+search the history for the next prefix match
+.TP
+.B \fBhistory\-token\-search\-backward\fP
+search the history for the previous matching argument
+.TP
+.B \fBhistory\-token\-search\-forward\fP
+search the history for the next matching argument
+.TP
+.B \fBhistory\-last\-token\-search\-backward\fP
+search the history for the previous matching last argument
+.TP
+.B \fBhistory\-last\-token\-search\-forward\fP
+search the history for the next matching last argument
+.TP
+.B \fBforward\-jump\fP and \fBbackward\-jump\fP
+read another character and jump to its next occurrence after/before the cursor
+.TP
+.B \fBforward\-jump\-till\fP and \fBbackward\-jump\-till\fP
+jump to right \fIbefore\fP the next occurrence
+.TP
+.B \fBrepeat\-jump\fP and \fBrepeat\-jump\-reverse\fP
+redo the last jump in the same/opposite direction
+.TP
+.B \fBjump\-to\-matching\-bracket\fP
+jump to matching bracket if the character under the cursor is bracket;
+otherwise, jump to the next occurrence of \fIany right\fP bracket after the cursor.
+The following brackets are considered: \fB([{}])\fP
+.TP
+.B \fBjump\-till\-matching\-bracket\fP
+the same as \fBjump\-to\-matching\-bracket\fP but offset cursor to the right for left bracket, and offset cursor to the left for right bracket.
+The offset is applied for both the position we jump from and position we jump to.
+In other words, the cursor will continuously jump inside the brackets but won\(aqt reach them by 1 character.
+The input function is useful to emulate \fBib\fP vi text object.
+The following brackets are considered: \fB([{}])\fP
+.TP
+.B \fBkill\-token\fP
+move the next argument to the killring
+.TP
+.B \fBkill\-line\fP
+move everything from the cursor to the end of the line to the killring
+.TP
+.B \fBkill\-path\-component\fP
+move one path component to the killring.
+.TP
+.B \fBkill\-selection\fP
+move the selected text to the killring
+.TP
+.B \fBkill\-whole\-line\fP
+move the line (including the following newline) to the killring. If the line is the last line, its preceding newline is also removed
+.TP
+.B \fBkill\-inner\-line\fP
+move the line (without the following newline) to the killring
+.TP
+.B \fBkill\-word\fP
+move the next word to the killring, stopping after the end of the killed word
+.TP
+.B \fBkill\-word\-vi\fP
+move the next word to the killring, stopping at the start of the next word (like vim\(aqs \fBdw\fP)
+.TP
+.B \fBkill\-bigword\fP
+move the next whitespace\-delimited word to the killring, stopping after the end of the current word
+.TP
+.B \fBkill\-bigword\-vi\fP
+move the next whitespace\-delimited word to the killring, stopping at the start of the next word (like vim\(aqs \fBdW\fP)
+.TP
+.B \fBkill\-inner\-word\fP
+delete the word under the cursor (like vim\(aqs \fBdiw\fP)
+.TP
+.B \fBkill\-inner\-bigword\fP
+delete the whitespace\-delimited word under the cursor (like vim\(aqs \fBdiW\fP)
+.TP
+.B \fBkill\-a\-word\fP
+delete the word under the cursor plus surrounding whitespace (like vim\(aqs \fBdaw\fP)
+.TP
+.B \fBkill\-a\-bigword\fP
+delete the whitespace\-delimited word under the cursor plus surrounding whitespace (like vim\(aqs \fBdaW\fP)
+.TP
+.B \fBnextd\-or\-forward\-word\fP
+if the commandline is empty, then move forward in the directory history, otherwise move one word to the right;
+or if at the end of the commandline, accept one word from the current autosuggestion.
+.TP
+.B \fBor\fP
+only execute the next function if the previous did not succeed (note: only some functions report failure)
+.TP
+.B \fBpager\-toggle\-search\fP
+toggles the search field if the completions pager is visible; or if used after \fBhistory\-pager\fP, search forwards in time.
+.TP
+.B \fBprevd\-or\-backward\-word\fP
+if the commandline is empty, then move backward in the directory history, otherwise move one word to the left
+.TP
+.B \fBrepaint\fP
+reexecutes the prompt functions and redraws the prompt (also \fBforce\-repaint\fP for backwards\-compatibility)
+.TP
+.B \fBrepaint\-mode\fP
+reexecutes the fish_mode_prompt \%<> and redraws the prompt. This is useful for vi mode. If no \fBfish_mode_prompt\fP exists or it prints nothing, it acts like a normal repaint.
+.TP
+.B \fBself\-insert\fP
+inserts the matching sequence into the command line
+.TP
+.B \fBself\-insert\-notfirst\fP
+inserts the matching sequence into the command line, unless the cursor is at the beginning
+.TP
+.B \fBget\-key\fP
+sets \fBfish_key\fP to the key that was pressed to trigger this binding. Example use:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.EX
+for i in (seq 0 9)
+    bind $i get\-key \(aqcommandline \-i \(dq#$fish_key\(dq\(aq \(aqset \-eg fish_key\(aq
+end
+.EE
+.UNINDENT
+.UNINDENT
+.TP
+.B \fBsuppress\-autosuggestion\fP
+remove the current autosuggestion. Returns true if there was a suggestion to remove.
+.TP
+.B \fBswap\-selection\-start\-stop\fP
+go to the other end of the highlighted text without changing the selection
+.TP
+.B \fBtranspose\-chars\fP
+transpose two characters to the left of the cursor
+.TP
+.B \fBtranspose\-words\fP
+transpose two words to the left of the cursor
+.TP
+.B \fBtogglecase\-char\fP
+toggle the capitalisation (case) of the character under the cursor
+.TP
+.B \fBtogglecase\-selection\fP
+toggle the capitalisation (case) of the selection
+.TP
+.B \fBinsert\-line\-under\fP
+add a new line under the current line
+.TP
+.B \fBinsert\-line\-over\fP
+add a new line over the current line
+.TP
+.B \fBup\-line\fP
+move up one line
+.TP
+.B \fBundo\fP and \fBredo\fP
+revert or redo the most recent edits on the command line
+.TP
+.B \fBupcase\-word\fP
+make the current word uppercase
+.TP
+.B \fByank\fP
+insert the latest entry of the killring into the buffer
+.TP
+.B \fByank\-pop\fP
+rotate to the previous entry of the killring
+.UNINDENT
+.SH ADDITIONAL FUNCTIONS
+.sp
+The following functions are included as normal functions, but are particularly useful for input editing:
+.INDENT 0.0
+.TP
+.B \fBup\-or\-search\fP and \fBdown\-or\-search\fP
+move the cursor or search the history depending on the cursor position and current mode
+.TP
+.B \fBedit_command_buffer\fP
+open the visual editor (controlled by the \fBVISUAL\fP or \fBEDITOR\fP environment variables) with the current command\-line contents
+.TP
+.B \fBfish_clipboard_copy\fP
+copy the current selection to the system clipboard
+.TP
+.B \fBfish_clipboard_paste\fP
+paste the current selection from the system clipboard before the cursor
+.TP
+.B \fBfish_commandline_append\fP
+append the argument to the command\-line. If the command\-line already ends with the argument, this removes the suffix instead. Starts with the last command from history if the command\-line is empty.
+.TP
+.B \fBfish_commandline_prepend\fP
+prepend the argument to the command\-line. If the command\-line already starts with the argument, this removes the prefix instead. Starts with the last command from history if the command\-line is empty.
+.UNINDENT
+.SH EXAMPLES
+.sp
+Exit the shell when \fBctrl\fP\-\fBd\fP is pressed:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+bind ctrl\-d \(aqexit\(aq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Perform a history search when \fBpageup\fP is pressed:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+bind pageup history\-search\-backward
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Turn on vi key bindings \%<#\:vi-mode> and rebind \fBctrl\fP\-\fBc\fP to clear the input line:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+set \-g fish_key_bindings fish_vi_key_bindings
+bind \-M insert ctrl\-c kill\-whole\-line repaint
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Launch \fBgit diff\fP and repaint the commandline afterwards when \fBctrl\fP\-\fBg\fP is pressed:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+bind ctrl\-g \(aqgit diff\(aq repaint
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Swap \fBtab\fP and \fBshift\fP\-\fBtab\fP, making tab focus the search field.
+But if the search field is already active, keep the behavior (\fBtab\fP cycles forward, \fBshift\fP\-\fBtab\fP backward).:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+bind tab \(aq
+    if commandline \-\-search\-field >/dev/null
+        commandline \-f complete
+    else
+        commandline \-f complete\-and\-search
+    end
+\(aq
+bind shift\-tab \(aq
+    if commandline \-\-search\-field >/dev/null
+        commandline \-f complete\-and\-search
+    else
+        commandline \-f complete
+    end
+\(aq
+.EE
+.UNINDENT
+.UNINDENT
+.SH TERMINAL LIMITATIONS
+.sp
+Unix terminals, like the ones fish operates in, are at heart 70s technology. They have some limitations that applications running inside them can\(aqt workaround.
+.sp
+For instance, historically the control key modifies a character by setting the top three bits to 0. This means:
+.INDENT 0.0
+.IP \(bu 2
+Many characters + control are indistinguishable from other keys: \fBctrl\fP\-\fBi\fP \fIis\fP \fBtab\fP, \fBctrl\fP\-\fBj\fP \fIis\fP newline (\fB\en\fP).
+.IP \(bu 2
+Control and shift don\(aqt work simultaneously \- \fBctrl\fP\-\fBX\fP is the same as \fBctrl\fP\-\fBx\fP\&.
+.UNINDENT
+.sp
+Other keys don\(aqt have a direct encoding, and are sent as escape sequences. For example \fBright\fP (\fB→\fP) usually sends \fB\ee\e[C\fP\&.
+.sp
+Some modern terminals support newer encodings for keys, that allow distinguishing more characters and modifiers, and fish enables as many of these as it can, automatically.
+.sp
+When in doubt, run fish_key_reader \- explore what characters keyboard keys send \%<>\&. If that tells you that pressing \fBctrl\fP\-\fBi\fP sends tab, your terminal does not support these better encodings, and so fish is limited to what it sends.
+.SH KEY TIMEOUT
+.sp
+When you\(aqve bound a sequence of multiple characters, there is always the possibility that fish has only seen a part of it, and then it needs to disambiguate between the full sequence and part of it.
+.sp
+For example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+bind j,k \(aqcommandline \-i foo\(aq
+# or \(gabind jk\(ga
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+will bind the sequence \fBjk\fP to insert \(dqfoo\(dq into the commandline. When you\(aqve only pressed \(dqj\(dq, fish doesn\(aqt know if it should insert the \(dqj\(dq (because of the default self\-insert), or wait for the \(dqk\(dq.
+.sp
+You can enable a timeout for this, by setting the \fBfish_sequence_key_delay_ms\fP \%<#\:envvar-fish_sequence_key_delay_ms> variable to the timeout in milliseconds. If the timeout elapses, fish will no longer wait for the sequence to be completed, and do what it can with the characters it already has.
+.sp
+The escape key is a special case, because it can be used standalone as a real key or as part of a longer escape sequence, like function or arrow keys. Holding alt and something else also typically sends escape, for example holding alt+a will send an escape character and then an \(dqa\(dq. So the escape character has its own timeout configured with \fBfish_escape_delay_ms\fP \%<#\:envvar-fish_escape_delay_ms>\&.
+.sp
+See also Key sequences \%<#\:interactive-key-sequences>\&.
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

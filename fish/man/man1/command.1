@@ -1,0 +1,75 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "COMMAND" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+command \- run a program
+.SH SYNOPSIS
+.nf
+\fBcommand\fP [\fIOPTIONS\fP] [\fICOMMANDNAME\fP [\fIARG\fP \&...]]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+NOTE: This page documents the fish builtin \fBcommand\fP\&.
+To see the documentation on any non\-fish versions, use \fBcommand man command\fP\&.
+.sp
+\fBcommand\fP forces the shell to execute the program \fICOMMANDNAME\fP and ignore any functions or builtins with the same name.
+.sp
+In \fBcommand foo\fP, \fBcommand\fP is a keyword.
+.sp
+The following options are available:
+.INDENT 0.0
+.TP
+\fB\-a\fP or \fB\-\-all\fP
+Prints all \fICOMMAND\fP found in \fBPATH\fP \%<#\:envvar-PATH>, in the order found.
+.TP
+\fB\-q\fP or \fB\-\-query\fP
+Return 0 if any of the given commands could be found, 127 otherwise.
+Don\(aqt print anything.
+For compatibility, this is also \fB\-\-quiet\fP (deprecated).
+.TP
+\fB\-s\fP or \fB\-\-search\fP (or \fB\-v\fP)
+Prints the external command that would be executed, or prints nothing if no file with the specified name could be found in \fBPATH\fP \%<#\:envvar-PATH>\&.
+.TP
+\fB\-h\fP or \fB\-\-help\fP
+Displays help about using this command.
+.UNINDENT
+.SH EXAMPLES
+.nf
+\fBcommand ls\fP executes the \fBls\fP program, even if an \fBls\fP function also exists.
+\fBcommand \-s ls\fP prints the path to the \fBls\fP program.
+\fBcommand \-q git; and command git log\fP runs \fBgit log\fP only if \fBgit\fP exists.
+\fBcommand \-sq git\fP and \fBcommand \-q git\fP and \fBcommand \-vq git\fP return true (0) if a git command could be found and don\(aqt print anything.
+.fi
+.sp
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

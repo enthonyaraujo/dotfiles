@@ -1,0 +1,95 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "STRING-JOIN0" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+string-join0 \- join strings with zero bytes
+.SH SYNOPSIS
+.nf
+\fBstring\fP \fBjoin\fP [\fB\-q\fP | \fB\-\-quiet\fP] [\fB\-n\fP | \fB\-\-no\-empty\fP] [\fB\-\-\fP] \fISEP\fP [\fISTRING\fP \&...]
+\fBstring\fP \fBjoin0\fP [\fB\-q\fP | \fB\-\-quiet\fP] [\fB\-n\fP | \fB\-\-no\-empty\fP] [\fB\-\-\fP] [\fISTRING\fP \&...]
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+Joins its \fISTRING\fP arguments into a single string separated by \fISEP\fP (for \fBstring join\fP) or by the
+zero byte (NUL) (for \fBstring join0\fP).
+Exit status: 0 if at least one join was performed, or 1 otherwise.
+.INDENT 0.0
+.TP
+\fB\-n\fP, \fB\-\-no\-empty\fP
+Exclude empty strings from consideration (e.g. \fBstring join \-n + a b \(dq\(dq c\fP would expand to \fBa+b+c\fP not \fBa+b++c\fP).
+.TP
+\fB\-q\fP, \fB\-\-quiet\fP
+Do not print the strings, only set the exit status as described above.
+.UNINDENT
+.sp
+\fBWARNING\fP:
+Insert a  \fB\-\-\fP before positional arguments to prevent them from being interpreted as flags.
+Otherwise, any strings starting with \fB\-\fP will be treated as flag arguments, meaning they will most likely result in the command failing.
+This is also true if you specify a variable which expands to such a string instead of a literal string.
+If you don\(aqt need to append flag arguments at the end of the command,
+just always use \fB\-\-\fP to avoid unwelcome surprises.
+.sp
+\fBstring join0\fP adds a trailing NUL. This is most useful in conjunction with tools that accept NUL\-delimited input, such as \fBsort \-z\fP\&.
+.sp
+Because Unix uses NUL as the string terminator, passing the output of \fBstring join0\fP as an \fIargument\fP to a command (via a command substitution \%<#\:expand-command-substitution>) won\(aqt actually work.
+Fish will pass the correct bytes along, but the command won\(aqt be able to tell where the argument ends.
+This is a limitation of Unix\(aq argument passing.
+.SH EXAMPLES
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+>_ seq 3 | string join ...
+1...2...3
+
+# Give a list of NUL\-separated filenames to du (this is a GNU extension)
+>_ string join0 file1 file2 file\enwith\enmultiple\enlines | du \-\-files0\-from=\-
+
+# Just put the strings together without a separator
+>_ string join \(aq\(aq a b c
+abc
+
+>_ set \-l markdown_list \(aq\- first\(aq \(aq\- second\(aq \(aq\- third\(aq
+# Strings with leading hyphens (also in variable expansions) are interpreted as flag arguments by default.
+>_ string join \en $markdown_list
+string join: \- first: unknown option
+# Use \(aq\-\-\(aq to prevent this.
+>_ string join \-\- \en $markdown_list
+\- first
+\- second
+\- third
+.EE
+.UNINDENT
+.UNINDENT
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.

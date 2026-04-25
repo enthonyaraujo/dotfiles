@@ -1,0 +1,264 @@
+.\" Man page generated from reStructuredText
+.\" by the Docutils 0.22.4 manpage writer.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "ABBR" "1" "Apr 01, 2026" "4.6" "fish-shell"
+.SH NAME
+abbr \- manage fish abbreviations
+.SH SYNOPSIS
+.nf
+\fBabbr\fP \fB\-\-add\fP \fINAME\fP [\fB\-\-position\fP \fBcommand\fP | \fBanywhere\fP] [\fB\-r\fP | \fB\-\-regex\fP \fIPATTERN\fP] [\fB\-c\fP | \fB\-\-command\fP \fICOMMAND\fP]
+                [\fB\-\-set\-cursor\fP[\fB=\fP\fIMARKER\fP]] ([\fB\-f\fP | \fB\-\-function\fP \fIFUNCTION\fP] | \fIEXPANSION\fP)
+\fBabbr\fP \fB\-\-erase\fP \fB[ \fP[\fB\-c\fP | \fB\-\-command\fP \fICOMMAND\fP]\&...\fB ]\fP \fINAME\fP \&...
+\fBabbr\fP \fB\-\-rename\fP \fB[ \fP[\fB\-c\fP | \fB\-\-command\fP \fICOMMAND\fP]\&...\fB ]\fP \fIOLD_WORD\fP \fINEW_WORD\fP
+\fBabbr\fP [\fB\-\-show\fP] [\fB\-\-color\fP \fIWHEN\fP]
+\fBabbr\fP \fB\-\-list\fP
+\fBabbr\fP \fB\-\-query\fP \fINAME\fP \&...
+.fi
+.sp
+.SH DESCRIPTION
+.sp
+\fBabbr\fP manages abbreviations \- user\-defined words that are replaced with longer phrases when entered.
+.sp
+\fBNote:\fP
+.INDENT 0.0
+.INDENT 3.5
+Only typed\-in commands use abbreviations. Abbreviations are not expanded in scripts.
+.UNINDENT
+.UNINDENT
+.sp
+For example, a frequently\-run command like \fBgit checkout\fP can be abbreviated to \fBgco\fP\&.
+After entering \fBgco\fP and pressing \fBspace\fP or \fBenter\fP, the full text \fBgit checkout\fP will appear in the command line.
+To avoid expanding something that looks like an abbreviation, the default \fBctrl\fP\-\fBspace\fP binding inserts a space without expanding.
+.sp
+An abbreviation may match a literal word, or it may match a pattern given by a regular expression. When an abbreviation matches a word, that word is replaced by new text, called its \fIexpansion\fP\&. This expansion may be a fixed new phrase, or it can be dynamically created via a fish function. This expansion occurs after pressing space or enter.
+.sp
+Combining these features, it is possible to create custom syntaxes, where a regular expression recognizes matching tokens, and the expansion function interprets them. See the Examples section.
+.sp
+Changed in version 3.6.0: Previous versions of this allowed saving abbreviations in universal variables.
+That\(aqs no longer possible. Existing variables will still be imported and \fBabbr \-\-erase\fP will also erase the variables.
+We recommend adding abbreviations to config.fish \%<#\:configuration> by just adding the \fBabbr \-\-add\fP command.
+When you run \fBabbr\fP, you will see output like this
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> abbr
+abbr \-a \-\- foo bar # imported from a universal variable, see \(gahelp abbr\(ga
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+In that case you should take the part before the \fB#\fP comment and save it in config.fish \%<#\:configuration>,
+then you can run \fBabbr \-\-erase\fP to remove the universal variable:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> abbr >> ~/.config/fish/config.fish
+> abbr \-\-erase (abbr \-\-list)
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Alternatively you can keep them in a separate configuration file \%<#\:configuration> by doing something like the following:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+> abbr > ~/.config/fish/conf.d/myabbrs.fish
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+This will save all your abbreviations in \(dqmyabbrs.fish\(dq, overwriting the whole file so it doesn\(aqt leave any duplicates,
+or restore abbreviations you had erased.
+Of course any functions will have to be saved separately, see funcsave \%<>\&.
+
+.SH "ADD" SUBCOMMAND
+.nf
+\fBabbr\fP [\fB\-a\fP | \fB\-\-add\fP] \fINAME\fP [\fB\-\-position\fP \fBcommand\fP | \fBanywhere\fP] [\fB\-r\fP | \fB\-\-regex\fP \fIPATTERN\fP]
+     [\fB\-c\fP | \fB\-\-command\fP \fICOMMAND\fP] [\fB\-\-set\-cursor\fP[\fB=\fP\fIMARKER\fP]] ([\fB\-f\fP | \fB\-\-function\fP \fIFUNCTION\fP] | \fIEXPANSION\fP)
+.fi
+.sp
+.sp
+\fBabbr \-\-add\fP creates a new abbreviation. With no other options, the string \fBNAME\fP is replaced by \fBEXPANSION\fP\&.
+.sp
+With \fB\-\-position command\fP, the abbreviation will only expand when it is positioned as a command, not as an argument to another command. With \fB\-\-position anywhere\fP the abbreviation may expand anywhere in the command line. The default is \fBcommand\fP\&.
+.sp
+With \fB\-\-command COMMAND\fP, the abbreviation will only expand when it is used as an argument to the given COMMAND. Multiple \fB\-\-command\fP can be used together, and the abbreviation will expand for each. An empty \fBCOMMAND\fP means it will expand only when there is no command. \fB\-\-command\fP implies \fB\-\-position anywhere\fP and disallows \fB\-\-position command\fP\&. Even with different \fBCOMMANDS\fP, the \fBNAME\fP of the abbreviation needs to be unique. Consider using \fB\-\-regex\fP if you want to expand the same word differently for multiple commands.
+.sp
+With \fB\-\-regex\fP, the abbreviation matches using the regular expression given by \fBPATTERN\fP, instead of the literal \fBNAME\fP\&. The pattern is interpreted using PCRE2 syntax and must match the entire token. If multiple abbreviations match the same token, the last abbreviation added is used.
+.sp
+With \fB\-\-set\-cursor=MARKER\fP, the cursor is moved to the first occurrence of \fBMARKER\fP in the expansion. The \fBMARKER\fP value is erased. The \fBMARKER\fP may be omitted (i.e. simply \fB\-\-set\-cursor\fP), in which case it defaults to \fB%\fP\&.
+.sp
+With \fB\-f FUNCTION\fP or \fB\-\-function FUNCTION\fP, \fBFUNCTION\fP is treated as the name of a fish function instead of a literal replacement. When the abbreviation matches, the function will be called with the matching token as an argument. If the function\(aqs exit status is 0 (success), the token will be replaced by the function\(aqs output; otherwise the token will be left unchanged. No \fBEXPANSION\fP may be given separately.
+.SS Examples
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr \-\-add gco git checkout
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Add a new abbreviation where \fBgco\fP will be replaced with \fBgit checkout\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr \-a \-\-position anywhere \-\- \-C \-\-color
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Add a new abbreviation where \fB\-C\fP will be replaced with \fB\-\-color\fP\&. The \fB\-\-\fP allows \fB\-C\fP to be treated as the name of the abbreviation, instead of an option.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr \-a L \-\-position anywhere \-\-set\-cursor \(dq% | less\(dq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Add a new abbreviation where \fBL\fP will be replaced with \fB| less\fP, placing the cursor before the pipe.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+function last_history_item
+    echo $history[1]
+end
+abbr \-a !! \-\-position anywhere \-\-function last_history_item
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+This first creates a function \fBlast_history_item\fP which outputs the last entered command. It then adds an abbreviation which replaces \fB!!\fP with the result of calling this function. Taken together, this is similar to the \fB!!\fP history expansion feature of bash.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+function vim_edit
+    echo vim $argv
+end
+abbr \-a vim_edit_texts \-\-position command \-\-regex \(dq.+\e.txt\(dq \-\-function vim_edit
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+This first creates a function \fBvim_edit\fP which prepends \fBvim\fP before its argument. It then adds an abbreviation which matches commands ending in \fB\&.txt\fP, and replaces the command with the result of calling this function. This allows text files to be \(dqexecuted\(dq as a command to open them in vim, similar to the \(dqsuffix alias\(dq feature in zsh.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr 4DIRS \-\-set\-cursor=! \(dq$(string join \en \-\- \(aqfor dir in */\(aq \(aqcd $dir\(aq \(aq!\(aq \(aqcd ..\(aq \(aqend\(aq)\(dq
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+This creates an abbreviation \(dq4DIRS\(dq which expands to a multi\-line loop \(dqtemplate.\(dq The template enters each directory and then leaves it. The cursor is positioned ready to enter the command to run in each directory, at the location of the \fB!\fP, which is itself erased.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr \-\-command git co checkout
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Turns \(dqco\(dq as an argument to \(dqgit\(dq into \(dqcheckout\(dq. Multiple commands are possible, \fB\-\-command={git,hg}\fP would expand \(dqco\(dq to \(dqcheckout\(dq for both git and hg.
+.SH OTHER SUBCOMMANDS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr \-\-rename [ [\-c | \-\-command COMMAND]... ] OLD_NAME NEW_NAME
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Renames an abbreviation, from \fIOLD_NAME\fP to \fINEW_NAME\fP\&.
+For command\-specific abbreviations, the \fB\-\-command\fP options must be provided to disambiguate which abbreviation to rename.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr [\-s | \-\-show]
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Show all abbreviations in a manner suitable for import and export
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr [\-l | \-\-list]
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Prints the names of all abbreviation
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr [\-e | \-\-erase] [ [\-c | \-\-command COMMAND]... ] NAME ...
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Erases the abbreviation with the given name.
+For command\-specific abbreviations, the \fB\-\-command\fP options must be provided to disambiguate which abbreviation to rename.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr \-q or \-\-query [NAME...]
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Return 0 (true) if one of the \fINAME\fP is an abbreviation.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+abbr \-h or \-\-help
+.EE
+.UNINDENT
+.UNINDENT
+.sp
+Displays help for the \fIabbr\fP command.
+.SH Copyright
+fish-shell developers
+.\" End of generated man page.
